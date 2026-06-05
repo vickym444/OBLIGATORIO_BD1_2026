@@ -167,7 +167,7 @@ CREATE TABLE IF NOT EXISTS `bd1_2026`.`asistencia` (
   `presente` TINYINT NOT NULL,
   `id_inscripcion` INT NOT NULL,
   PRIMARY KEY (`id_asistencia`),
-  INDEX `fk_asistencia_inscripcion1_idx` (`id_inscripcion` ASC) VISIBLE,
+  UNIQUE INDEX `fk_asistencia_inscripcion1_idx` (`id_inscripcion` ASC) VISIBLE,
   CONSTRAINT `fk_asistencia_inscripcion1`
     FOREIGN KEY (`id_inscripcion`)
     REFERENCES `bd1_2026`.`inscripcion` (`id_inscripcion`)

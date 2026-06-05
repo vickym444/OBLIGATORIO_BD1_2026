@@ -49,3 +49,10 @@ ALTER TABLE `bd1_2026`.`inscripcion`
             REFERENCES `bd1_2026`.`practica` (`id_practica`)
             ON DELETE NO ACTION
             ON UPDATE NO ACTION;
+
+
+-- -----------------------------------------------------
+-- Modificar asistencia: garantizar relacion 1:1 con inscripcion
+-- -----------------------------------------------------
+ALTER TABLE `bd1_2026`.`asistencia`
+    ADD UNIQUE INDEX `id_inscripcion_UNIQUE` (`id_inscripcion` ASC) VISIBLE;
