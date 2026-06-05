@@ -2,11 +2,9 @@
 
 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
-SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
 
--- -----------------------------------------------------
--- Schema bd1_2026
--- -----------------------------------------------------
+
+SET @OLD_SQL_MODE.=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
 
 -- -----------------------------------------------------
 -- Schema bd1_2026
@@ -98,7 +96,7 @@ CREATE TABLE IF NOT EXISTS `bd1_2026`.`actividad` (
   `nombre` VARCHAR(100) NOT NULL,
   `cupo_maximo` INT NOT NULL,
   `cupo_minimo` INT NOT NULL,
-  `fecha` DATE NOT NULL,
+  `dia` ENUM('Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Lunes y Miercoles', 'Martes y Jueves', 'Miercoles y Viernes') NOT NULL,
   `hora_inicio` TIME NOT NULL,
   `hora_fin` TIME NOT NULL,
   `estado` ENUM('abierta', 'cerrada', 'finalizada', 'cancelada') NOT NULL,
@@ -119,6 +117,21 @@ CREATE TABLE IF NOT EXISTS `bd1_2026`.`actividad` (
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
+-- -----------------------------------------------------
+-- Table `bd1_2026`.`practica`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `bd1_2026`.`practica` (
+ `id_practica` INT NOT NULL AUTO_INCREMENT,
+ `id_actividad` INT NOT NULL,
+ `fecha` DATE NOT NULL,
+ PRIMARY KEY (`id_practica`),
+ INDEX `fk_practica_actividad_idx` (`id_actividad` ASC) VISIBLE,
+ CONSTRAINT `fk_practica_actividad`
+    FOREIGN KEY (`id_actividad`)
+     REFERENCES `bd1_2026`.`actividad` (`id_actividad`)
+     ON DELETE NO ACTION
+     ON UPDATE NO ACTION)
+ENGINE = InnoDB;
 
 -- -----------------------------------------------------
 -- Table `bd1_2026`.`inscripcion`
@@ -129,18 +142,18 @@ CREATE TABLE IF NOT EXISTS `bd1_2026`.`inscripcion` (
   `fecha_baja` DATE NULL,
   `estado` ENUM('confirmada', 'en_espera', 'cancelada') NOT NULL,
   `id_estudiante` INT NOT NULL,
-  `id_actividad` INT NOT NULL,
+  `id_practica` INT NOT NULL,
   PRIMARY KEY (`id_inscripcion`),
   INDEX `fk_inscripcion_estudiante1_idx` (`id_estudiante` ASC) VISIBLE,
-  INDEX `fk_inscripcion_actividad1_idx` (`id_actividad` ASC) VISIBLE,
+  INDEX `fk_inscripcion_practica_idx` (`id_practica` ASC) VISIBLE,
   CONSTRAINT `fk_inscripcion_estudiante1`
     FOREIGN KEY (`id_estudiante`)
     REFERENCES `bd1_2026`.`estudiante` (`id_estudiante`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `fk_inscripcion_actividad1`
-    FOREIGN KEY (`id_actividad`)
-    REFERENCES `bd1_2026`.`actividad` (`id_actividad`)
+  CONSTRAINT `fk_inscripcion_practica`
+    FOREIGN KEY (`id_practica`)
+    REFERENCES `bd1_2026`.`practica` (`id_practica`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
