@@ -4,7 +4,7 @@ SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
 
 
-SET @OLD_SQL_MODE.=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
+SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
 
 -- -----------------------------------------------------
 -- Schema bd1_2026
@@ -96,9 +96,9 @@ CREATE TABLE IF NOT EXISTS `bd1_2026`.`actividad` (
   `nombre` VARCHAR(100) NOT NULL,
   `cupo_maximo` INT NOT NULL,
   `cupo_minimo` INT NOT NULL,
-  `dia` ENUM('Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Lunes y Miercoles', 'Martes y Jueves', 'Miercoles y Viernes') NOT NULL,
   `hora_inicio` TIME NOT NULL,
   `hora_fin` TIME NOT NULL,
+  `dia` ENUM('Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Lunes y Miercoles', 'Martes y Jueves', 'Miercoles y Viernes') NOT NULL,
   `estado` ENUM('abierta', 'cerrada', 'finalizada', 'cancelada') NOT NULL,
   `id_disciplina` INT NOT NULL,
   `id_espacio` INT NOT NULL,
@@ -167,7 +167,7 @@ CREATE TABLE IF NOT EXISTS `bd1_2026`.`asistencia` (
   `presente` TINYINT NOT NULL,
   `id_inscripcion` INT NOT NULL,
   PRIMARY KEY (`id_asistencia`),
-  UNIQUE INDEX `fk_asistencia_inscripcion1_idx` (`id_inscripcion` ASC) VISIBLE,
+  UNIQUE INDEX `id_inscripcion_UNIQUE` (`id_inscripcion` ASC) VISIBLE,
   CONSTRAINT `fk_asistencia_inscripcion1`
     FOREIGN KEY (`id_inscripcion`)
     REFERENCES `bd1_2026`.`inscripcion` (`id_inscripcion`)
