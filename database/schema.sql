@@ -18,6 +18,7 @@ USE `bd1_2026` ;
 CREATE TABLE IF NOT EXISTS `bd1_2026`.`facultad` (
   `id_facultad` INT NOT NULL AUTO_INCREMENT,
   `nombre` VARCHAR(100) NOT NULL,
+  `activo` TINYINT NOT NULL DEFAULT 1,  
   PRIMARY KEY (`id_facultad`),
   UNIQUE INDEX `nombre_UNIQUE` (`nombre` ASC) VISIBLE)
 ENGINE = InnoDB;
@@ -30,6 +31,7 @@ CREATE TABLE IF NOT EXISTS `bd1_2026`.`carrera` (
   `id_carrera` INT NOT NULL AUTO_INCREMENT,
   `nombre` VARCHAR(100) NOT NULL,
   `id_facultad` INT NOT NULL,
+  `activo` TINYINT NOT NULL DEFAULT 1,
   PRIMARY KEY (`id_carrera`),
   INDEX `fk_carrera_facultad1_idx` (`id_facultad` ASC) VISIBLE,
   CONSTRAINT `fk_carrera_facultad1`
@@ -70,6 +72,7 @@ CREATE TABLE IF NOT EXISTS `bd1_2026`.`disciplina` (
   `id_disciplina` INT NOT NULL AUTO_INCREMENT,
   `nombre` VARCHAR(100) NOT NULL,
   `descripcion` VARCHAR(255) NULL,
+  `activo` TINYINT NOT NULL DEFAULT 1,
   PRIMARY KEY (`id_disciplina`),
   UNIQUE INDEX `nombre_UNIQUE` (`nombre` ASC) VISIBLE)
 ENGINE = InnoDB;
@@ -83,6 +86,7 @@ CREATE TABLE IF NOT EXISTS `bd1_2026`.`espacio` (
   `nombre` VARCHAR(100) NOT NULL,
   `capacidad` INT NOT NULL,
   `descripcion` VARCHAR(255) NULL,
+  `activo` TINYINT NOT NULL DEFAULT 1,
   PRIMARY KEY (`id_espacio`),
   UNIQUE INDEX `nombre_UNIQUE` (`nombre` ASC) VISIBLE)
 ENGINE = InnoDB;
@@ -102,6 +106,7 @@ CREATE TABLE IF NOT EXISTS `bd1_2026`.`actividad` (
   `estado` ENUM('abierta', 'cerrada', 'finalizada', 'cancelada') NOT NULL,
   `id_disciplina` INT NOT NULL,
   `id_espacio` INT NOT NULL,
+  `activo` TINYINT NOT NULL DEFAULT 1,
   PRIMARY KEY (`id_actividad`),
   INDEX `fk_actividad_disciplina1_idx` (`id_disciplina` ASC) VISIBLE,
   INDEX `fk_actividad_espacio1_idx` (`id_espacio` ASC) VISIBLE,
@@ -124,6 +129,7 @@ CREATE TABLE IF NOT EXISTS `bd1_2026`.`practica` (
  `id_practica` INT NOT NULL AUTO_INCREMENT,
  `id_actividad` INT NOT NULL,
  `fecha` DATE NOT NULL,
+ `activo` TINYINT NOT NULL DEFAULT 1,
  PRIMARY KEY (`id_practica`),
  INDEX `fk_practica_actividad_idx` (`id_actividad` ASC) VISIBLE,
  CONSTRAINT `fk_practica_actividad`
