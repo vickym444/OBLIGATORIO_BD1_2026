@@ -3,14 +3,6 @@ class Facultad:
         self.id_facultad = id_facultad
         self.nombre = nombre
 
-    def get_id(self):
-        return self.id_facultad
-
-    def get_nombre(self):
-        return self.nombre
-    
-    def set_nombre(self, nuevo_nombre):
-        self.nombre = nuevo_nombre
 
 class Carrera:
     def __init__(self, id_carrera, nombre, id_facultad):
