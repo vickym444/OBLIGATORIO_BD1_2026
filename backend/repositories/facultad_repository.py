@@ -50,7 +50,7 @@ class FacultadRepository:
         finally:
             connection.close()
 
-    def update_facultad(self, id_facultad, nombre):
+    def update_facultad(self, id_facultad, nombre, activo):
         connection = get_connection()
         try:
             cursor = connection.cursor()
@@ -60,7 +60,7 @@ class FacultadRepository:
                 SET nombre = %s
                 WHERE id_facultad = %s
                 """,
-                (nombre, id_facultad)
+                (nombre, activo, id_facultad)
             )
             connection.commit()
             return cursor.rowcount
