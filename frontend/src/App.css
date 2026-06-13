@@ -251,6 +251,15 @@
   background: #fff;
 }
 
+.career-form__field input,
+.career-form__field select {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  border-radius: 12px;
+  background: #fff;
+}
+
 .faculty-form__actions,
 .faculty-list__actions {
   display: flex;
@@ -300,6 +309,94 @@
 
 .faculty-list__item strong,
 .faculty-list__item span {
+  display: block;
+}
+
+.career-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 360px) minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.career-card {
+  display: grid;
+  gap: 16px;
+  padding: 20px;
+  border-radius: 18px;
+  background: linear-gradient(180deg, #ffffff 0%, #f7fafc 100%);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.career-card h2 {
+  margin: 0;
+  color: #102a43;
+}
+
+.career-form {
+  display: grid;
+  gap: 16px;
+}
+
+.career-form__field {
+  display: grid;
+  gap: 8px;
+}
+
+.career-form__field span {
+  font-weight: 600;
+  color: #334e68;
+}
+
+.career-form__actions,
+.career-list__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.career-form__actions button,
+.career-list__actions button {
+  padding: 10px 14px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  border-radius: 12px;
+  background: #fff;
+  color: #102a43;
+  cursor: pointer;
+}
+
+.career-form__actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.career-message {
+  margin: 0;
+}
+
+.career-message--error {
+  color: #b42318;
+}
+
+.career-list {
+  display: grid;
+  gap: 12px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.career-list__item {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: rgba(16, 42, 67, 0.04);
+}
+
+.career-list__item strong,
+.career-list__item span {
   display: block;
 }
 
@@ -362,5 +459,14 @@
 
   .faculty-grid {
     grid-template-columns: 1fr;
+  }
+
+  .career-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .faculty-list__item,
+  .career-list__item {
+    flex-direction: column;
   }
 }
