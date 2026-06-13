@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from database.connection import test_connection
 from routes.actividad_routes import router as actividad_router
+from routes.facultad_routes import router as facultad_router
 from routes.estudiante_routes import router as estudiante_router
 
 app = FastAPI()
@@ -24,6 +25,7 @@ app.add_middleware(
 )
 
 app.include_router(actividad_router)
+app.include_router(facultad_router)
 app.include_router(estudiante_router)
 
 

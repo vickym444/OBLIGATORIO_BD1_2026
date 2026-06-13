@@ -8,9 +8,8 @@ class FacultadRepository:
             cursor = connection.cursor(dictionary=True)
             cursor.execute(
                 """
-                SELECT id_facultad, nombre, activo
+                SELECT id_facultad, nombre
                 FROM facultad
-                WHERE activo = 1
                 ORDER BY id_facultad
                 """
             )
@@ -24,7 +23,7 @@ class FacultadRepository:
             cursor = connection.cursor(dictionary=True)
             cursor.execute(
                 """
-                SELECT id_facultad, nombre, activo
+                SELECT id_facultad, nombre
                 FROM facultad
                 WHERE id_facultad = %s
                 """,
@@ -34,16 +33,16 @@ class FacultadRepository:
         finally:
             connection.close()
 
-    def create_facultad(self, nombre, activo=1):
+    def create_facultad(self, nombre):
         connection = get_connection()
         try:
             cursor = connection.cursor()
             cursor.execute(
                 """
-                INSERT INTO facultad (nombre, activo)
-                VALUES (%s, %s)
+                INSERT INTO facultad (nombre)
+                VALUES (%s)
                 """,
-                (nombre, activo)
+                (nombre,)
             )
             connection.commit()
             return cursor.lastrowid

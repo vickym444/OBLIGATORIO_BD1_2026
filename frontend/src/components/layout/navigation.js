@@ -1,5 +1,6 @@
 export const navigationItems = [
   { label: 'Dashboard', path: '/dashboard' },
+  { label: 'Facultades', path: '/facultades' },
   { label: 'Estudiantes', path: '/estudiantes' },
   { label: 'Disciplinas', path: '/disciplinas' },
   { label: 'Espacios', path: '/espacios' },

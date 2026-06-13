@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import MainLayout from '../components/layout/MainLayout'
 import DashboardPage from '../pages/DashboardPage'
+import FacultadesPage from '../pages/FacultadesPage'
 import EstudiantesPage from '../pages/EstudiantesPage'
 import DisciplinasPage from '../pages/DisciplinasPage'
 import EspaciosPage from '../pages/EspaciosPage'
@@ -15,6 +16,7 @@ function AppRouter() {
       <Route element={<MainLayout />}>
         <Route index element={<DashboardPage />} />
         <Route path="dashboard" element={<DashboardPage />} />
+        <Route path="facultades" element={<FacultadesPage />} />
         <Route path="estudiantes" element={<EstudiantesPage />} />
         <Route path="disciplinas" element={<DisciplinasPage />} />
         <Route path="espacios" element={<EspaciosPage />} />
