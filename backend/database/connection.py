@@ -1,4 +1,4 @@
-git add backend/repositories/disciplina_repository.py backend/schemas/disciplina_schema.py backend/services/disciplina_service.py backend/routes/disciplina_routes.py backend/main.py backend/database/connection.pyimport os
+import os
 
 import mysql.connector
 
