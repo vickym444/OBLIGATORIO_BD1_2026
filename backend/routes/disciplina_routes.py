@@ -20,7 +20,11 @@ def obtener(id_disciplina: int):
 
 @router.post("")
 def crear(data: DisciplinaCreate):
-    id_nuevo = disciplina_service.crear_disciplina(data.nombre, data.descripcion)
+    try:
+        id_nuevo = disciplina_service.crear_disciplina(data.nombre, data.descripcion)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
     return {"data": {"id_disciplina": id_nuevo}}
 
 

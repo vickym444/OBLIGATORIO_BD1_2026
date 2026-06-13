@@ -20,7 +20,11 @@ def obtener(id_espacio: int):
 
 @router.post("")
 def crear(data: EspacioCreate):
-    id_nuevo = espacio_service.crear_espacio(data.nombre, data.descripcion)
+    try:
+        id_nuevo = espacio_service.crear_espacio(data.nombre, data.descripcion)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
     return {"data": {"id_espacio": id_nuevo}}
 
 

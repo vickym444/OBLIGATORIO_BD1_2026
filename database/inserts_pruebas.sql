@@ -15,8 +15,8 @@ INSERT INTO `bd1_2026`.`disciplina` (`nombre`, `descripcion`) VALUES ('Futbol', 
 INSERT INTO `bd1_2026`.`disciplina` (`nombre`, `descripcion`) VALUES ('Natacion', 'Deporte acuatico');
 
 -- espacio
-INSERT INTO `bd1_2026`.`espacio` (`nombre`, `capacidad`, `descripcion`) VALUES ('Cancha 1', 22, 'Cancha de futbol 11');
-INSERT INTO `bd1_2026`.`espacio` (`nombre`, `capacidad`, `descripcion`) VALUES ('Piscina', 30, 'Piscina 25 mts');
+INSERT INTO `bd1_2026`.`espacio` (`nombre`, `descripcion`) VALUES ('Cancha 1', 'Cancha de futbol 11');
+INSERT INTO `bd1_2026`.`espacio` (`nombre`, `descripcion`) VALUES ('Piscina', 'Piscina 25 mts');
 
 -- -----------------------------------------------------
 -- Inserts de prueba 2da parte

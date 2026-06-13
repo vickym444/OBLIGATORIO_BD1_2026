@@ -251,6 +251,15 @@
   background: #fff;
 }
 
+.faculty-form__field textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  border-radius: 12px;
+  background: #fff;
+  resize: vertical;
+}
+
 .career-form__field input,
 .career-form__field select {
   width: 100%;
@@ -258,6 +267,16 @@
   border: 1px solid rgba(148, 163, 184, 0.4);
   border-radius: 12px;
   background: #fff;
+}
+
+.space-form__field input,
+.space-form__field textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  border-radius: 12px;
+  background: #fff;
+  resize: vertical;
 }
 
 .faculty-form__actions,
@@ -319,7 +338,23 @@
   align-items: start;
 }
 
+.space-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 360px) minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
 .career-card {
+  display: grid;
+  gap: 16px;
+  padding: 20px;
+  border-radius: 18px;
+  background: linear-gradient(180deg, #ffffff 0%, #f7fafc 100%);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.space-card {
   display: grid;
   gap: 16px;
   padding: 20px;
@@ -333,7 +368,17 @@
   color: #102a43;
 }
 
+.space-card h2 {
+  margin: 0;
+  color: #102a43;
+}
+
 .career-form {
+  display: grid;
+  gap: 16px;
+}
+
+.space-form {
   display: grid;
   gap: 16px;
 }
@@ -343,13 +388,30 @@
   gap: 8px;
 }
 
+.space-form__field {
+  display: grid;
+  gap: 8px;
+}
+
 .career-form__field span {
+  font-weight: 600;
+  color: #334e68;
+}
+
+.space-form__field span {
   font-weight: 600;
   color: #334e68;
 }
 
 .career-form__actions,
 .career-list__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.space-form__actions,
+.space-list__actions {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
@@ -365,7 +427,22 @@
   cursor: pointer;
 }
 
+.space-form__actions button,
+.space-list__actions button {
+  padding: 10px 14px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  border-radius: 12px;
+  background: #fff;
+  color: #102a43;
+  cursor: pointer;
+}
+
 .career-form__actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.space-form__actions button:disabled {
   cursor: not-allowed;
   opacity: 0.7;
 }
@@ -374,11 +451,27 @@
   margin: 0;
 }
 
+.space-message {
+  margin: 0;
+}
+
 .career-message--error {
   color: #b42318;
 }
 
+.space-message--error {
+  color: #b42318;
+}
+
 .career-list {
+  display: grid;
+  gap: 12px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.space-list {
   display: grid;
   gap: 12px;
   list-style: none;
@@ -395,8 +488,22 @@
   background: rgba(16, 42, 67, 0.04);
 }
 
+.space-list__item {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: rgba(16, 42, 67, 0.04);
+}
+
 .career-list__item strong,
 .career-list__item span {
+  display: block;
+}
+
+.space-list__item strong,
+.space-list__item span {
   display: block;
 }
 
@@ -465,8 +572,13 @@
     grid-template-columns: 1fr;
   }
 
+  .space-grid {
+    grid-template-columns: 1fr;
+  }
+
   .faculty-list__item,
-  .career-list__item {
+  .career-list__item,
+  .space-list__item {
     flex-direction: column;
   }
 }

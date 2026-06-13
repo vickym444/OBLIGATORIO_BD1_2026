@@ -34,6 +34,38 @@ class EspacioRepository:
         finally:
             connection.close()
 
+    def get_espacio_by_nombre_inactivo(self, nombre):
+        connection = get_connection()
+        try:
+            cursor = connection.cursor(dictionary=True)
+            cursor.execute(
+                """
+                SELECT id_espacio, nombre, descripcion, activo
+                FROM espacio
+                WHERE nombre = %s AND activo = 0
+                """,
+                (nombre,)
+            )
+            return cursor.fetchone()
+        finally:
+            connection.close()
+
+    def get_espacio_by_nombre_activo(self, nombre):
+        connection = get_connection()
+        try:
+            cursor = connection.cursor(dictionary=True)
+            cursor.execute(
+                """
+                SELECT id_espacio, nombre, descripcion, activo
+                FROM espacio
+                WHERE nombre = %s AND activo = 1
+                """,
+                (nombre,)
+            )
+            return cursor.fetchone()
+        finally:
+            connection.close()
+
     def create_espacio(self, nombre, descripcion):
         connection = get_connection()
         try:
@@ -47,6 +79,23 @@ class EspacioRepository:
             )
             connection.commit()
             return cursor.lastrowid
+        finally:
+            connection.close()
+
+    def reactivate_espacio(self, id_espacio):
+        connection = get_connection()
+        try:
+            cursor = connection.cursor()
+            cursor.execute(
+                """
+                UPDATE espacio
+                SET activo = 1
+                WHERE id_espacio = %s
+                """,
+                (id_espacio,)
+            )
+            connection.commit()
+            return cursor.rowcount
         finally:
             connection.close()
 

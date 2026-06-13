@@ -34,6 +34,7 @@ CREATE TABLE IF NOT EXISTS `bd1_2026`.`carrera` (
   `activo` TINYINT NOT NULL DEFAULT 1,
   PRIMARY KEY (`id_carrera`),
   INDEX `fk_carrera_facultad1_idx` (`id_facultad` ASC) VISIBLE,
+  UNIQUE INDEX `nombre_UNIQUE` (`nombre` ASC) VISIBLE,
   CONSTRAINT `fk_carrera_facultad1`
     FOREIGN KEY (`id_facultad`)
     REFERENCES `bd1_2026`.`facultad` (`id_facultad`)
@@ -84,7 +85,6 @@ ENGINE = InnoDB;
 CREATE TABLE IF NOT EXISTS `bd1_2026`.`espacio` (
   `id_espacio` INT NOT NULL AUTO_INCREMENT,
   `nombre` VARCHAR(100) NOT NULL,
-  `capacidad` INT NOT NULL,
   `descripcion` VARCHAR(255) NULL,
   `activo` TINYINT NOT NULL DEFAULT 1,
   PRIMARY KEY (`id_espacio`),
@@ -185,16 +185,3 @@ ENGINE = InnoDB;
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
-
-ALTER TABLE facultad ADD COLUMN activo TINYINT NOT NULL DEFAULT 1;
-
-UPDATE facultad SET activo = 1;
-
-ALTER TABLE carrera ADD COLUMN activo TINYINT NOT NULL DEFAULT 1;
-
-UPDATE carrera SET activo = 1;
-
-ALTER TABLE disciplina ADD COLUMN activo TINYINT NOT NULL DEFAULT 1;
-
-UPDATE disciplina SET activo = 1;
-
