@@ -10,6 +10,7 @@ class FacultadRepository:
                 """
                 SELECT id_facultad, nombre
                 FROM facultad
+                WHERE activo = 1
                 ORDER BY id_facultad
                 """
             )
@@ -33,6 +34,22 @@ class FacultadRepository:
         finally:
             connection.close()
 
+    def get_facultad_by_nombre_inactiva(self, nombre):
+        connection = get_connection()
+        try:
+            cursor = connection.cursor(dictionary=True)
+            cursor.execute(
+                """
+                SELECT id_facultad, nombre
+                FROM facultad
+                WHERE nombre = %s AND activo = 0
+                """,
+                (nombre,)
+            )
+            return cursor.fetchone()
+        finally:
+            connection.close()
+
     def create_facultad(self, nombre):
         connection = get_connection()
         try:
@@ -46,6 +63,23 @@ class FacultadRepository:
             )
             connection.commit()
             return cursor.lastrowid
+        finally:
+            connection.close()
+
+    def reactivate_facultad(self, id_facultad):
+        connection = get_connection()
+        try:
+            cursor = connection.cursor()
+            cursor.execute(
+                """
+                UPDATE facultad
+                SET activo = 1
+                WHERE id_facultad = %s
+                """,
+                (id_facultad,)
+            )
+            connection.commit()
+            return cursor.rowcount
         finally:
             connection.close()
 

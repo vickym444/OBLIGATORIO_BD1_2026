@@ -15,7 +15,10 @@ class FacultadService:
         nombre = nombre.strip()
         if not nombre:
             raise ValueError("El nombre de la facultad es obligatorio")
-
+        facultad_inactiva = self.repository.get_facultad_by_nombre_inactiva(nombre)
+        if facultad_inactiva:
+            self.repository.reactivate_facultad(facultad_inactiva["id_facultad"])
+            return facultad_inactiva["id_facultad"]
         return self.repository.create_facultad(nombre=nombre)
 
     def actualizar_facultad(self, id_facultad, nombre):
