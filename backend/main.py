@@ -12,6 +12,7 @@ from routes.carrera_routes import router as carrera_router
 from routes.disciplina_routes import router as disciplina_router
 from routes.espacio_routes import router as espacio_router
 from routes.practica_routes import router as practica_router
+from routes.inscripcion_routes import router as inscripcion_router
 
 
 app = FastAPI()
@@ -36,6 +37,7 @@ app.include_router(carrera_router)
 app.include_router(disciplina_router)
 app.include_router(espacio_router)
 app.include_router(practica_router)
+app.include_router(inscripcion_router)
 
 
 
