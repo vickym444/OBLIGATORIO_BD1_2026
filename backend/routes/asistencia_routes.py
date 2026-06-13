@@ -1,0 +1,49 @@
+from fastapi import APIRouter, HTTPException
+from schemas.asistencia_schema import AsistenciaCreate, AsistenciaUpdate
+from services.asistencia_service import asistencia_service
+
+router = APIRouter(prefix="/asistencias", tags=["asistencias"])
+
+
+@router.get("")
+def listar():
+    return {"data": asistencia_service.listar_asistencias()}
+
+
+@router.get("/{id_asistencia}")
+def obtener(id_asistencia: int):
+    asistencia = asistencia_service.obtener_asistencia(id_asistencia)
+    if not asistencia:
+        raise HTTPException(status_code=404, detail="Asistencia no encontrada")
+    return {"data": asistencia}
+
+
+@router.get("/inscripcion/{id_inscripcion}")
+def obtener_por_inscripcion(id_inscripcion: int):
+    asistencia = asistencia_service.obtener_por_inscripcion(id_inscripcion)
+    if not asistencia:
+        raise HTTPException(status_code=404, detail="Asistencia no encontrada")
+    return {"data": asistencia}
+
+
+@router.post("")
+def registrar(data: AsistenciaCreate):
+    try:
+        id_nuevo = asistencia_service.registrar_asistencia(
+            data.presente,
+            data.id_inscripcion
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return {"data": {"id_asistencia": id_nuevo}}
+
+
+@router.put("/{id_asistencia}")
+def actualizar(id_asistencia: int, data: AsistenciaUpdate):
+    try:
+        filas = asistencia_service.actualizar_asistencia(id_asistencia, data.presente)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    if not filas:
+        raise HTTPException(status_code=404, detail="Asistencia no encontrada")
+    return {"data": {"actualizado": True}}
