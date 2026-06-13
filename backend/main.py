@@ -12,6 +12,7 @@ from routes.carrera_routes import router as carrera_router
 from routes.disciplina_routes import router as disciplina_router
 from routes.espacio_routes import router as espacio_router
 
+
 app = FastAPI()
 
 origins = [
@@ -28,11 +29,13 @@ app.add_middleware(
 )
 
 app.include_router(actividad_router)
+
 app.include_router(estudiante_router)
 app.include_router(facultad_router)
 app.include_router(carrera_router)
 app.include_router(disciplina_router)
 app.include_router(espacio_router)
+
 
 
 @app.get("/")

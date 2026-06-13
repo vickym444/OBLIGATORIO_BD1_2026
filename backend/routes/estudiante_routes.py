@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from schemas.estudiante_schema import EstudianteCreate, EstudianteUpdate
-import services.estudiante_service as service
+from services.estudiante_service import estudiante_service as service
 
 router = APIRouter(prefix="/estudiantes", tags=["estudiantes"])
 

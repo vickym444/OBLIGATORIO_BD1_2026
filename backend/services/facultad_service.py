@@ -1,18 +1,34 @@
 from repositories.facultad_repository import FacultadRepository
 
-repo = FacultadRepository()
 
-def listar_facultades():
-    return repo.get_all_facultades()
+class FacultadService:
+    def __init__(self, repository=None):
+        self.repository = repository or FacultadRepository()
 
-def obtener_facultad(id_facultad: int):
-    return repo.get_facultad_by_id(id_facultad)
+    def listar_facultades(self):
+        return self.repository.get_all_facultades()
 
-def crear_facultad(nombre):
-    return repo.create_facultad(nombre)
+    def obtener_facultad(self, id_facultad):
+        return self.repository.get_facultad_by_id(id_facultad)
 
-def actualizar_facultad(id_facultad, nombre, activo):
-    return repo.update_facultad(id_facultad, nombre, activo)
+    def crear_facultad(self, nombre):
+        nombre = nombre.strip()
+        if not nombre:
+            raise ValueError("El nombre de la facultad es obligatorio")
+        facultad_inactiva = self.repository.get_facultad_by_nombre_inactiva(nombre)
+        if facultad_inactiva:
+            self.repository.reactivate_facultad(facultad_inactiva["id_facultad"])
+            return facultad_inactiva["id_facultad"]
+        return self.repository.create_facultad(nombre=nombre)
 
-def eliminar_facultad(id_facultad: int):
-    return repo.delete_facultad(id_facultad)
+    def actualizar_facultad(self, id_facultad, nombre, activo):
+        nombre = nombre.strip()
+        if not nombre:
+            raise ValueError("El nombre de la facultad es obligatorio")
+        return self.repository.update_facultad(id_facultad=id_facultad, nombre=nombre, activo=activo)
+
+    def eliminar_facultad(self, id_facultad):
+        return self.repository.delete_facultad(id_facultad)
+
+
+facultad_service = FacultadService()

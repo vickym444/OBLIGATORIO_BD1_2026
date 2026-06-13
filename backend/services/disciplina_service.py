@@ -1,18 +1,29 @@
 from repositories.disciplina_repository import DisciplinaRepository
 
-repo = DisciplinaRepository()
 
-def listar_disciplinas():
-    return repo.get_all_disciplinas()
+class DisciplinaService:
+    def __init__(self, repository=None):
+        self.repository = repository or DisciplinaRepository()
 
-def obtener_disciplina(id_disciplina: int):
-    return repo.get_disciplina_by_id(id_disciplina)
+    def listar_disciplinas(self):
+        return self.repository.get_all_disciplinas()
 
-def crear_disciplina(nombre, descripcion):
-    return repo.create_disciplina(nombre, descripcion)
+    def obtener_disciplina(self, id_disciplina):
+        return self.repository.get_disciplina_by_id(id_disciplina)
 
-def actualizar_disciplina(id_disciplina, nombre, descripcion, activo):
-    return repo.update_disciplina(id_disciplina, nombre, descripcion, activo)
+    def crear_disciplina(self, nombre, descripcion=None):
+        return self.repository.create_disciplina(nombre=nombre, descripcion=descripcion)
 
-def eliminar_disciplina(id_disciplina: int):
-    return repo.delete_disciplina(id_disciplina)
+    def actualizar_disciplina(self, id_disciplina, nombre, descripcion, activo):
+        return self.repository.update_disciplina(
+            id_disciplina=id_disciplina,
+            nombre=nombre,
+            descripcion=descripcion,
+            activo=activo,
+        )
+
+    def eliminar_disciplina(self, id_disciplina):
+        return self.repository.delete_disciplina(id_disciplina)
+
+
+disciplina_service = DisciplinaService()

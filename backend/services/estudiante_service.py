@@ -1,18 +1,39 @@
 from repositories.estudiante_repository import EstudianteRepository
 
-repo = EstudianteRepository()
 
-def listar_estudiantes():
-    return repo.get_all_estudiantes()
+class EstudianteService:
+    def __init__(self, repository=None):
+        self.repository = repository or EstudianteRepository()
 
-def obtener_estudiante(id_estudiante: int):
-    return repo.get_estudiante_by_id(id_estudiante)
+    def listar_estudiantes(self):
+        return self.repository.get_all_estudiantes()
 
-def crear_estudiante(documento, nombre, apellido, email, id_carrera):
-    return repo.create_estudiante(documento, nombre, apellido, email, id_carrera)
+    def obtener_estudiante(self, id_estudiante):
+        return self.repository.get_estudiante_by_id(id_estudiante)
 
-def actualizar_estudiante(id_estudiante, documento, nombre, apellido, email, activo, id_carrera):
-    return repo.update_estudiante(id_estudiante, documento, nombre, apellido, email, activo, id_carrera)
+    def crear_estudiante(self, documento, nombre, apellido, email, id_carrera, activo=1):
+        return self.repository.create_estudiante(
+            documento=documento,
+            nombre=nombre,
+            apellido=apellido,
+            email=email,
+            id_carrera=id_carrera,
+            activo=activo,
+        )
 
-def eliminar_estudiante(id_estudiante: int):
-    return repo.delete_estudiante(id_estudiante)
+    def actualizar_estudiante(self, id_estudiante, documento, nombre, apellido, email, activo, id_carrera):
+        return self.repository.update_estudiante(
+            id_estudiante=id_estudiante,
+            documento=documento,
+            nombre=nombre,
+            apellido=apellido,
+            email=email,
+            activo=activo,
+            id_carrera=id_carrera,
+        )
+
+    def eliminar_estudiante(self, id_estudiante):
+        return self.repository.delete_estudiante(id_estudiante)
+
+
+estudiante_service = EstudianteService()

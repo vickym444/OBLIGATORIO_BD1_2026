@@ -1,18 +1,29 @@
 from repositories.carrera_repository import CarreraRepository
 
-repo = CarreraRepository()
 
-def listar_carreras():
-    return repo.get_all_carreras()
+class CarreraService:
+    def __init__(self, repository=None):
+        self.repository = repository or CarreraRepository()
 
-def obtener_carrera(id_carrera: int):
-    return repo.get_carrera_by_id(id_carrera)
+    def listar_carreras(self):
+        return self.repository.get_all_carreras()
 
-def crear_carrera(nombre, id_facultad):
-    return repo.create_carrera(nombre, id_facultad)
+    def obtener_carrera(self, id_carrera):
+        return self.repository.get_carrera_by_id(id_carrera)
 
-def actualizar_carrera(id_carrera, nombre, id_facultad, activo):
-    return repo.update_carrera(id_carrera, nombre, id_facultad, activo)
+    def crear_carrera(self, nombre, id_facultad):
+        return self.repository.create_carrera(nombre=nombre, id_facultad=id_facultad)
 
-def eliminar_carrera(id_carrera: int):
-    return repo.delete_carrera(id_carrera)
+    def actualizar_carrera(self, id_carrera, nombre, id_facultad, activo):
+        return self.repository.update_carrera(
+            id_carrera=id_carrera,
+            nombre=nombre,
+            id_facultad=id_facultad,
+            activo=activo,
+        )
+
+    def eliminar_carrera(self, id_carrera):
+        return self.repository.delete_carrera(id_carrera)
+
+
+carrera_service = CarreraService()
