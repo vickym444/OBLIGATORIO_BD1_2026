@@ -8,7 +8,7 @@ class FacultadRepository:
             cursor = connection.cursor(dictionary=True)
             cursor.execute(
                 """
-                SELECT id_facultad, nombre
+                SELECT id_facultad, nombre, activo
                 FROM facultad
                 WHERE activo = 1
                 ORDER BY id_facultad
@@ -24,7 +24,7 @@ class FacultadRepository:
             cursor = connection.cursor(dictionary=True)
             cursor.execute(
                 """
-                SELECT id_facultad, nombre
+                SELECT id_facultad, nombre, activo
                 FROM facultad
                 WHERE id_facultad = %s
                 """,
@@ -40,7 +40,7 @@ class FacultadRepository:
             cursor = connection.cursor(dictionary=True)
             cursor.execute(
                 """
-                SELECT id_facultad, nombre
+                SELECT id_facultad, nombre, activo
                 FROM facultad
                 WHERE nombre = %s AND activo = 0
                 """,
@@ -50,16 +50,16 @@ class FacultadRepository:
         finally:
             connection.close()
 
-    def create_facultad(self, nombre):
+    def create_facultad(self, nombre, activo=1):
         connection = get_connection()
         try:
             cursor = connection.cursor()
             cursor.execute(
                 """
-                INSERT INTO facultad (nombre)
-                VALUES (%s)
+                INSERT INTO facultad (nombre, activo)
+                VALUES (%s, %s)
                 """,
-                (nombre,)
+                (nombre, activo)
             )
             connection.commit()
             return cursor.lastrowid
@@ -83,17 +83,18 @@ class FacultadRepository:
         finally:
             connection.close()
 
-    def update_facultad(self, id_facultad, nombre):
+    def update_facultad(self, id_facultad, nombre, activo):
         connection = get_connection()
         try:
             cursor = connection.cursor()
             cursor.execute(
                 """
                 UPDATE facultad
-                SET nombre = %s
+                SET nombre = %s,
+                    activo = %s
                 WHERE id_facultad = %s
                 """,
-                (nombre, id_facultad)
+                (nombre, activo, id_facultad)
             )
             connection.commit()
             return cursor.rowcount

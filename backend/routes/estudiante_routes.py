@@ -1,55 +1,54 @@
 from fastapi import APIRouter, HTTPException
-
-from services.estudiante_service import estudiante_service
+from schemas.estudiante_schema import EstudianteCreate, EstudianteUpdate
+from services.estudiante_service import estudiante_service as service
 
 router = APIRouter(prefix="/estudiantes", tags=["estudiantes"])
 
 
 @router.get("")
-def obtener_estudiantes():
-    return {"data": estudiante_service.listar_estudiantes()}
+def listar():
+    return {"data": service.listar_estudiantes()}
 
 
 @router.get("/{id_estudiante}")
-def obtener_estudiante(id_estudiante: int):
-    estudiante = estudiante_service.obtener_estudiante(id_estudiante)
-    if estudiante is None:
+def obtener(id_estudiante: int):
+    estudiante = service.obtener_estudiante(id_estudiante)
+    if not estudiante:
         raise HTTPException(status_code=404, detail="Estudiante no encontrado")
     return {"data": estudiante}
 
 
 @router.post("")
-def crear_estudiante(payload: dict):
-    estudiante_id = estudiante_service.crear_estudiante(
-        documento=payload["documento"],
-        nombre=payload["nombre"],
-        apellido=payload["apellido"],
-        email=payload["email"],
-        id_carrera=payload["id_carrera"],
-        activo=payload.get("activo", 1),
+def crear(data: EstudianteCreate):
+    id_nuevo = service.crear_estudiante(
+        data.documento,
+        data.nombre,
+        data.apellido,
+        data.email,
+        data.id_carrera
     )
-    return {"id_estudiante": estudiante_id}
+    return {"data": {"id_estudiante": id_nuevo}}
 
 
 @router.put("/{id_estudiante}")
-def actualizar_estudiante(id_estudiante: int, payload: dict):
-    filas_actualizadas = estudiante_service.actualizar_estudiante(
-        id_estudiante=id_estudiante,
-        documento=payload["documento"],
-        nombre=payload["nombre"],
-        apellido=payload["apellido"],
-        email=payload["email"],
-        activo=payload["activo"],
-        id_carrera=payload["id_carrera"],
+def actualizar(id_estudiante: int, data: EstudianteUpdate):
+    filas = service.actualizar_estudiante(
+        id_estudiante,
+        data.documento,
+        data.nombre,
+        data.apellido,
+        data.email,
+        data.activo,
+        data.id_carrera
     )
-    if filas_actualizadas == 0:
+    if not filas:
         raise HTTPException(status_code=404, detail="Estudiante no encontrado")
-    return {"updated": filas_actualizadas}
+    return {"data": {"actualizado": True}}
 
 
 @router.delete("/{id_estudiante}")
-def eliminar_estudiante(id_estudiante: int):
-    filas_actualizadas = estudiante_service.eliminar_estudiante(id_estudiante)
-    if filas_actualizadas == 0:
+def eliminar(id_estudiante: int):
+    filas = service.eliminar_estudiante(id_estudiante)
+    if not filas:
         raise HTTPException(status_code=404, detail="Estudiante no encontrado")
-    return {"deleted": filas_actualizadas}
+    return {"data": {"eliminado": True}}

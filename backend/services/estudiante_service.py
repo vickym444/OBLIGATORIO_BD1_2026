@@ -11,15 +11,7 @@ class EstudianteService:
     def obtener_estudiante(self, id_estudiante):
         return self.repository.get_estudiante_by_id(id_estudiante)
 
-    def crear_estudiante(
-        self,
-        documento,
-        nombre,
-        apellido,
-        email,
-        id_carrera,
-        activo=1,
-    ):
+    def crear_estudiante(self, documento, nombre, apellido, email, id_carrera, activo=1):
         return self.repository.create_estudiante(
             documento=documento,
             nombre=nombre,
@@ -29,16 +21,7 @@ class EstudianteService:
             activo=activo,
         )
 
-    def actualizar_estudiante(
-        self,
-        id_estudiante,
-        documento,
-        nombre,
-        apellido,
-        email,
-        activo,
-        id_carrera,
-    ):
+    def actualizar_estudiante(self, id_estudiante, documento, nombre, apellido, email, activo, id_carrera):
         return self.repository.update_estudiante(
             id_estudiante=id_estudiante,
             documento=documento,

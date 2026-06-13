@@ -21,12 +21,11 @@ class FacultadService:
             return facultad_inactiva["id_facultad"]
         return self.repository.create_facultad(nombre=nombre)
 
-    def actualizar_facultad(self, id_facultad, nombre):
+    def actualizar_facultad(self, id_facultad, nombre, activo):
         nombre = nombre.strip()
         if not nombre:
             raise ValueError("El nombre de la facultad es obligatorio")
-
-        return self.repository.update_facultad(id_facultad=id_facultad, nombre=nombre)
+        return self.repository.update_facultad(id_facultad=id_facultad, nombre=nombre, activo=activo)
 
     def eliminar_facultad(self, id_facultad):
         return self.repository.delete_facultad(id_facultad)
