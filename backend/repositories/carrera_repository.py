@@ -34,6 +34,39 @@ class CarreraRepository:
         finally:
             connection.close()
 
+    def get_carrera_by_nombre_inactiva(self, nombre):
+        connection = get_connection()
+        try:
+            cursor = connection.cursor(dictionary=True)
+            cursor.execute(
+                """
+                SELECT id_carrera, nombre, id_facultad, activo
+                FROM carrera
+                WHERE nombre = %s AND activo = 0
+                """,
+                (nombre,)
+            )
+            return cursor.fetchone()
+        finally:
+            connection.close()
+
+    def reactivate_carrera(self, id_carrera):
+        connection = get_connection()
+        try:
+            cursor = connection.cursor()
+            cursor.execute(
+                """
+                UPDATE carrera
+                SET activo = 1
+                WHERE id_carrera = %s
+                """,
+                (id_carrera,)
+            )
+            connection.commit()
+            return cursor.rowcount
+        finally:
+            connection.close()
+            
     def create_carrera(self, nombre, id_facultad, activo=1):
         connection = get_connection()
         try:
