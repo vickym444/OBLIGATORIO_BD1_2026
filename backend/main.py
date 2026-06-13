@@ -10,6 +10,7 @@ from routes.estudiante_routes import router as estudiante_router
 from routes.facultad_routes import router as facultad_router
 from routes.carrera_routes import router as carrera_router
 from routes.disciplina_routes import router as disciplina_router
+from routes.espacio_routes import router as espacio_router
 
 app = FastAPI()
 
@@ -31,6 +32,8 @@ app.include_router(estudiante_router)
 app.include_router(facultad_router)
 app.include_router(carrera_router)
 app.include_router(disciplina_router)
+app.include_router(espacio_router)
+
 
 @app.get("/")
 def root():
