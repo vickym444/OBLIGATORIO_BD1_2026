@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException
+from datetime import date
 from schemas.practica_schema import PracticaCreate, PracticaUpdate
 from services.practica_service import practica_service
 
@@ -13,6 +14,33 @@ def listar():
 @router.get("/actividad/{id_actividad}")
 def listar_por_actividad(id_actividad: int):
     return {"data": practica_service.listar_practicas_por_actividad(id_actividad)}
+
+
+@router.get("/fecha/{fecha}")
+def listar_por_fecha(fecha: date):
+    return {"data": practica_service.listar_practicas_por_fecha(fecha)}
+
+
+@router.get("/rango")
+def listar_por_rango(fecha_desde: date, fecha_hasta: date):
+    try:
+        practicas = practica_service.listar_practicas_por_rango_fechas(fecha_desde, fecha_hasta)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return {"data": practicas}
+
+
+@router.post("/generar/{id_actividad}")
+def generar(id_actividad: int, fecha_desde: date | None = None, fecha_hasta: date | None = None):
+    try:
+        resultado = practica_service.generar_practicas_automaticas(
+            id_actividad=id_actividad,
+            fecha_desde=fecha_desde,
+            fecha_hasta=fecha_hasta,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return {"data": resultado}
 
 
 @router.get("/{id_practica}")

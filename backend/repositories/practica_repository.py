@@ -18,6 +18,41 @@ class PracticaRepository:
         finally:
             connection.close()
 
+    def get_practicas_by_fecha(self, fecha):
+        connection = get_connection()
+        try:
+            cursor = connection.cursor(dictionary=True)
+            cursor.execute(
+                """
+                SELECT id_practica, id_actividad, fecha, activo
+                FROM practica
+                WHERE fecha = %s AND activo = 1
+                ORDER BY id_practica
+                """,
+                (fecha,)
+            )
+            return cursor.fetchall()
+        finally:
+            connection.close()
+
+    def get_practicas_by_rango_fechas(self, fecha_desde, fecha_hasta):
+        connection = get_connection()
+        try:
+            cursor = connection.cursor(dictionary=True)
+            cursor.execute(
+                """
+                SELECT id_practica, id_actividad, fecha, activo
+                FROM practica
+                WHERE fecha BETWEEN %s AND %s
+                  AND activo = 1
+                ORDER BY fecha, id_practica
+                """,
+                (fecha_desde, fecha_hasta)
+            )
+            return cursor.fetchall()
+        finally:
+            connection.close()
+
     def get_practica_by_actividad_y_fecha(self, id_actividad, fecha):
         connection = get_connection()
         try:

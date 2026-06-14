@@ -1,4 +1,5 @@
 from repositories.actividad_repository import ActividadRepository
+from services.practica_service import practica_service
 from datetime import time, timedelta
 
 
@@ -88,9 +89,10 @@ class ActividadService:
         actividad_inactiva = self.repository.get_actividad_by_nombre_inactiva(nombre)
         if actividad_inactiva:
             self.repository.reactivate_actividad(actividad_inactiva["id_actividad"])
+            practica_service.generar_practicas_futuras(actividad_inactiva["id_actividad"])
             return actividad_inactiva["id_actividad"]
 
-        return self.repository.create_actividad(
+        id_nuevo = self.repository.create_actividad(
             nombre=nombre,
             cupo_maximo=cupo_maximo,
             cupo_minimo=cupo_minimo,
@@ -101,6 +103,8 @@ class ActividadService:
             id_disciplina=id_disciplina,
             id_espacio=id_espacio
         )
+        practica_service.generar_practicas_futuras(id_nuevo)
+        return id_nuevo
 
     def actualizar_actividad(self, id_actividad, nombre, cupo_maximo, cupo_minimo, hora_inicio, hora_fin, dia, estado, id_disciplina, id_espacio, activo):
         nombre = nombre.strip()
@@ -118,7 +122,7 @@ class ActividadService:
             id_espacio=id_espacio,
         )
 
-        return self.repository.update_actividad(
+        filas = self.repository.update_actividad(
             id_actividad=id_actividad,
             nombre=nombre,
             cupo_maximo=cupo_maximo,
@@ -131,6 +135,11 @@ class ActividadService:
             id_espacio=id_espacio,
             activo=activo
         )
+
+        if filas and activo == 1:
+            practica_service.generar_practicas_futuras(id_actividad)
+
+        return filas
 
     def eliminar_actividad(self, id_actividad):
         return self.repository.delete_actividad(id_actividad)
