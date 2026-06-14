@@ -2,13 +2,13 @@ from pydantic import BaseModel
 from typing import Optional
 
 class UsuarioCreate(BaseModel):
-    username: str
+    email: str
     password: str
     rol: str = 'estudiante'
     id_estudiante: Optional[int] = None
 
 class UsuarioUpdate(BaseModel):
-    username: str
+    email: str
     password: str
     rol: str
     id_estudiante: Optional[int] = None
@@ -16,7 +16,7 @@ class UsuarioUpdate(BaseModel):
 
 class UsuarioResponse(BaseModel):
     id_usuario: int
-    username: str
+    email: str
     rol: str
     id_estudiante: Optional[int] = None
     activo: int

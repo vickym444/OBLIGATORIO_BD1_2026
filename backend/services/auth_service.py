@@ -49,7 +49,7 @@ class AuthService:
             "token_type": "bearer",
             "user": {
                 "id_usuario": usuario["id_usuario"],
-                "username": usuario["username"],
+                "username": usuario["email"],
                 "rol": usuario["rol"],
                 "id_estudiante": usuario.get("id_estudiante"),
             },

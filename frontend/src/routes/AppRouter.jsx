@@ -1,5 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import MainLayout from '../components/layout/MainLayout'
+import LoginPage from '../pages/LoginPage'
+import { ProtectedRoute } from '../components/routes/ProtectedRoute'
 import FacultadesPage from '../pages/FacultadesPage'
 import CarrerasPage from '../pages/CarrerasPage'
 import EstudiantesPage from '../pages/EstudiantesPage'
@@ -15,7 +17,17 @@ import UsuariosPage from '../pages/UsuariosPage'
 function AppRouter() {
   return (
     <Routes>
-      <Route element={<MainLayout />}>
+      {/* Public routes */}
+      <Route path="/login" element={<LoginPage />} />
+
+      {/* Protected routes */}
+      <Route
+        element={
+          <ProtectedRoute>
+            <MainLayout />
+          </ProtectedRoute>
+        }
+      >
         <Route index element={<PracticasPage />} />
         <Route path="facultades" element={<FacultadesPage />} />
         <Route path="carreras" element={<CarrerasPage />} />
@@ -29,7 +41,9 @@ function AppRouter() {
         <Route path="reportes" element={<ReportesPage />} />
         <Route path="usuarios" element={<UsuariosPage />} />
       </Route>
-      <Route path="*" element={<Navigate to="/dashboard" replace />} />
+
+      {/* Fallback */}
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )
 }

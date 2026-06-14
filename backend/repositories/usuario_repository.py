@@ -8,7 +8,7 @@ class UsuarioRepository:
             cursor = connection.cursor(dictionary=True)
             cursor.execute(
                 """
-                SELECT id_usuario, username, rol, id_estudiante, activo
+                SELECT id_usuario, email, rol, id_estudiante, activo
                 FROM usuario
                 WHERE activo = 1
                 ORDER BY id_usuario
@@ -24,7 +24,7 @@ class UsuarioRepository:
             cursor = connection.cursor(dictionary=True)
             cursor.execute(
                 """
-                SELECT id_usuario, username, rol, id_estudiante, activo
+                SELECT id_usuario, email, rol, id_estudiante, activo
                 FROM usuario
                 WHERE id_usuario = %s
                 """,
@@ -34,31 +34,32 @@ class UsuarioRepository:
         finally:
             connection.close()
 
-    def get_usuario_by_username(self, username):
+    def get_usuario_by_email(self, email):
         connection = get_connection()
         try:
             cursor = connection.cursor(dictionary=True)
             cursor.execute(
                 """
-                SELECT id_usuario, username, rol, id_estudiante, activo
+                SELECT id_usuario, email, rol, id_estudiante, activo
                 FROM usuario
-                WHERE username = %s
+                WHERE email = %s
                 """,
-                (username,)
+                (email,)
             )
             return cursor.fetchone()
         finally:
             connection.close()
 
     def get_usuario_auth_by_username(self, username):
+        """Login by email (username parameter is actually email)"""
         connection = get_connection()
         try:
             cursor = connection.cursor(dictionary=True)
             cursor.execute(
                 """
-                SELECT id_usuario, username, password_hash, rol, id_estudiante, activo
+                SELECT id_usuario, email, password_hash, rol, id_estudiante, activo
                 FROM usuario
-                WHERE username = %s
+                WHERE email = %s
                 """,
                 (username,)
             )
@@ -66,37 +67,37 @@ class UsuarioRepository:
         finally:
             connection.close()
 
-    def create_usuario(self, username, password_hash, rol, id_estudiante, activo=1):
+    def create_usuario(self, email, password_hash, rol, id_estudiante, activo=1):
         connection = get_connection()
         try:
             cursor = connection.cursor()
             cursor.execute(
                 """
-                INSERT INTO usuario (username, password_hash, rol, id_estudiante, activo)
+                INSERT INTO usuario (email, password_hash, rol, id_estudiante, activo)
                 VALUES (%s, %s, %s, %s, %s)
                 """,
-                (username, password_hash, rol, id_estudiante, activo)
+                (email, password_hash, rol, id_estudiante, activo)
             )
             connection.commit()
             return cursor.lastrowid
         finally:
             connection.close()
 
-    def update_usuario(self, id_usuario, username, password_hash, rol, id_estudiante, activo):
+    def update_usuario(self, id_usuario, email, password_hash, rol, id_estudiante, activo):
         connection = get_connection()
         try:
             cursor = connection.cursor()
             cursor.execute(
                 """
                 UPDATE usuario
-                SET username = %s,
+                SET email = %s,
                     password_hash = %s,
                     rol = %s,
                     id_estudiante = %s,
                     activo = %s
                 WHERE id_usuario = %s
                 """,
-                (username, password_hash, rol, id_estudiante, activo, id_usuario)
+                (email, password_hash, rol, id_estudiante, activo, id_usuario)
             )
             connection.commit()
             return cursor.rowcount

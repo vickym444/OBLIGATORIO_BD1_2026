@@ -23,7 +23,7 @@ def obtener(id_usuario: int, _=Depends(require_admin)):
 def crear(data: UsuarioCreate, _=Depends(require_admin)):
     try:
         id_nuevo = service.crear_usuario(
-            data.username,
+            data.email,
             data.password,
             data.rol,
             data.id_estudiante
@@ -38,7 +38,7 @@ def actualizar(id_usuario: int, data: UsuarioUpdate, _=Depends(require_admin)):
     try:
         filas = service.actualizar_usuario(
             id_usuario,
-            data.username,
+            data.email,
             data.password,
             data.rol,
             data.id_estudiante,

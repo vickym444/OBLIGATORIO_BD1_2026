@@ -1,12 +1,29 @@
 export const API_BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8000'
 
+let authToken = null
+
+export function setAuthToken(token) {
+  authToken = token
+}
+
+export function clearAuthToken() {
+  authToken = null
+}
+
 export async function request(path, options = {}) {
+  const headers = {
+    'Content-Type': 'application/json',
+    ...(options.headers ?? {}),
+  }
+
+  // Add Bearer token if available
+  if (authToken) {
+    headers.Authorization = `Bearer ${authToken}`
+  }
+
   const response = await fetch(`${API_BASE_URL}${path}`, {
-    headers: {
-      'Content-Type': 'application/json',
-      ...(options.headers ?? {}),
-    },
     ...options,
+    headers,
   })
 
   const hasBody = response.status !== 204
@@ -14,7 +31,9 @@ export async function request(path, options = {}) {
 
   if (!response.ok) {
     const message = payload?.detail ?? payload?.message ?? 'Error al comunicarse con el backend'
-    throw new Error(message)
+    const error = new Error(message)
+    error.status = response.status
+    throw error
   }
 
   return payload

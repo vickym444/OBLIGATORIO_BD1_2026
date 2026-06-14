@@ -22,10 +22,10 @@ class UsuarioService:
         if not estudiante or estudiante.get("activo") != 1:
             raise ValueError("El estudiante no existe o está inactivo")
 
-    def _validar_username_disponible(self, username, id_usuario_excluir=None):
-        usuario = self.repository.get_usuario_by_username(username)
+    def _validar_email_disponible(self, email, id_usuario_excluir=None):
+        usuario = self.repository.get_usuario_by_email(email)
         if usuario and usuario["id_usuario"] != id_usuario_excluir:
-            raise ValueError("Ya existe un usuario con ese username")
+            raise ValueError("Ya existe un usuario con ese email")
 
     def listar_usuarios(self):
         return self.repository.get_all_usuarios()
@@ -33,11 +33,11 @@ class UsuarioService:
     def obtener_usuario(self, id_usuario):
         return self.repository.get_usuario_by_id(id_usuario)
 
-    def crear_usuario(self, username, password, rol, id_estudiante):
-        username = str(username).strip()
+    def crear_usuario(self, email, password, rol, id_estudiante):
+        email = str(email).strip()
 
-        if not username:
-            raise ValueError("El username es obligatorio")
+        if not email:
+            raise ValueError("El email es obligatorio")
         if not password:
             raise ValueError("La contraseña es obligatoria")
 
@@ -46,22 +46,22 @@ class UsuarioService:
         if id_estudiante is not None:
             self._validar_estudiante_activo(id_estudiante)
 
-        self._validar_username_disponible(username)
+        self._validar_email_disponible(email)
 
         password_hash = self._hashear_password(password)
 
         return self.repository.create_usuario(
-            username=username,
+            email=email,
             password_hash=password_hash,
             rol=rol,
             id_estudiante=id_estudiante
         )
 
-    def actualizar_usuario(self, id_usuario, username, password, rol, id_estudiante, activo):
-        username = str(username).strip()
+    def actualizar_usuario(self, id_usuario, email, password, rol, id_estudiante, activo):
+        email = str(email).strip()
 
-        if not username:
-            raise ValueError("El username es obligatorio")
+        if not email:
+            raise ValueError("El email es obligatorio")
         if not password:
             raise ValueError("La contraseña es obligatoria")
 
@@ -70,13 +70,13 @@ class UsuarioService:
         if id_estudiante is not None:
             self._validar_estudiante_activo(id_estudiante)
 
-        self._validar_username_disponible(username, id_usuario_excluir=id_usuario)
+        self._validar_email_disponible(email, id_usuario_excluir=id_usuario)
 
         password_hash = self._hashear_password(password)
 
         return self.repository.update_usuario(
             id_usuario=id_usuario,
-            username=username,
+            email=email,
             password_hash=password_hash,
             rol=rol,
             id_estudiante=id_estudiante,

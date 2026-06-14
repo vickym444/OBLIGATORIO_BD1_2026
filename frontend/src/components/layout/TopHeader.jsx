@@ -1,9 +1,17 @@
-import { useLocation } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
+import { useAuth } from '../../contexts/AuthContext'
 import { sectionLabels } from './navigation'
 
 function TopHeader() {
   const location = useLocation()
+  const navigate = useNavigate()
+  const { user, logout } = useAuth()
   const currentSection = sectionLabels[location.pathname] ?? 'Dashboard'
+
+  function handleLogout() {
+    logout()
+    navigate('/login')
+  }
 
   return (
     <header className="app-header">
@@ -15,7 +23,17 @@ function TopHeader() {
         </p>
       </div>
 
-      <div className="app-header__badge">React + Router + Vite</div>
+      <div className="app-header__controls">
+        <div className="app-header__user">
+          <span className="app-header__username">{user?.username}</span>
+          <span className={`app-header__role app-header__role--${user?.rol}`}>
+            {user?.rol === 'admin' ? 'Administrador' : 'Estudiante'}
+          </span>
+        </div>
+        <button onClick={handleLogout} className="app-header__logout">
+          Cerrar sesión
+        </button>
+      </div>
     </header>
   )
 }
