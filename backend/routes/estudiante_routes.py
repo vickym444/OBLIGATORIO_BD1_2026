@@ -7,8 +7,11 @@ router = APIRouter(prefix="/estudiantes", tags=["estudiantes"])
 
 
 @router.get("")
-def listar(_=Depends(require_admin)):
-    return {"data": service.listar_estudiantes()}
+def listar(
+    solo_con_3_inasistencias: bool = False,
+    _=Depends(require_admin),
+):
+    return {"data": service.listar_estudiantes(solo_con_3_inasistencias=solo_con_3_inasistencias)}
 
 
 @router.get("/{id_estudiante}")

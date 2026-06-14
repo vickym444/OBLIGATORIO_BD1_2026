@@ -1,7 +1,14 @@
 import { request } from './apiClient'
 
-export function listarEstudiantes() {
-  return request('/estudiantes')
+export function listarEstudiantes(soloCon3Inasistencias = false) {
+  const params = new URLSearchParams()
+
+  if (soloCon3Inasistencias) {
+    params.set('solo_con_3_inasistencias', 'true')
+  }
+
+  const query = params.toString()
+  return request(`/estudiantes${query ? `?${query}` : ''}`)
 }
 
 export function obtenerEstudiante(idEstudiante) {

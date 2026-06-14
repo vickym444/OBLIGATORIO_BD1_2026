@@ -14,6 +14,13 @@ function PracticaListItem({
         ? 'En espera'
         : 'Activa'
 
+  const inscriptosConfirmados = practica.inscriptos_confirmados ?? 0
+  const cupoMaximo = practica.cupo_maximo ?? 0
+  const porcentajeCompletitud = Number(practica.porcentaje_completitud ?? 0)
+  const porcentajeTexto = Number.isInteger(porcentajeCompletitud)
+    ? String(porcentajeCompletitud)
+    : porcentajeCompletitud.toFixed(2).replace(/\.00$/, '')
+
   return (
     <li className="practice-list__item">
       <div>
@@ -21,6 +28,7 @@ function PracticaListItem({
         <span>ID práctica {practica.id_practica}</span>
         <span>ID actividad {practica.id_actividad}</span>
         <span>{practica.fecha}</span>
+        <span className="practice-list__capacity">{inscriptosConfirmados}/{cupoMaximo} ({porcentajeTexto}%)</span>
         {detalleActividad ? <span>{detalleActividad}</span> : null}
       </div>
 

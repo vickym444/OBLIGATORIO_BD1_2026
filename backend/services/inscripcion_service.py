@@ -10,8 +10,23 @@ class InscripcionService:
         self.practica_repo = PracticaRepository()
         self.actividad_repo = ActividadRepository()
 
-    def listar_inscripciones(self, fecha_desde=None, fecha_hasta=None):
-        return self.repository.get_all_inscripciones(fecha_desde=fecha_desde, fecha_hasta=fecha_hasta)
+    def listar_inscripciones(
+        self,
+        fecha_desde=None,
+        fecha_hasta=None,
+        id_facultad=None,
+        id_carrera=None,
+        id_actividad=None,
+        id_disciplina=None,
+    ):
+        return self.repository.get_all_inscripciones(
+            fecha_desde=fecha_desde,
+            fecha_hasta=fecha_hasta,
+            id_facultad=id_facultad,
+            id_carrera=id_carrera,
+            id_actividad=id_actividad,
+            id_disciplina=id_disciplina,
+        )
 
     def obtener_inscripcion(self, id_inscripcion):
         return self.repository.get_inscripcion_by_id(id_inscripcion)

@@ -39,6 +39,7 @@ function InscripcionesPage() {
   const [cancelandoId, setCancelandoId] = useState(null)
   const [error, setError] = useState('')
   const [successMessage, setSuccessMessage] = useState('')
+  const [cantidadVisualizada, setCantidadVisualizada] = useState(0)
   const [fechaDesde, setFechaDesde] = useState(new Date().toISOString().slice(0, 10))
   const [fechaHasta, setFechaHasta] = useState(getTodayPlusDays(7))
   const [filtroFacultad, setFiltroFacultad] = useState('')
@@ -57,7 +58,14 @@ function InscripcionesPage() {
         if (isAdmin) {
           const [inscripcionesResponse, facultadesResponse, carrerasResponse, actividadesResponse, disciplinasResponse] =
             await Promise.all([
-              listarInscripcionesAdmin({ fechaDesde, fechaHasta }),
+              listarInscripcionesAdmin({
+                fechaDesde,
+                fechaHasta,
+                idFacultad: filtroFacultad,
+                idCarrera: filtroCarrera,
+                idActividad: filtroActividad,
+                idDisciplina: filtroDisciplina,
+              }),
               listarFacultades(),
               listarCarreras(),
               listarActividades(),
@@ -65,7 +73,9 @@ function InscripcionesPage() {
             ])
 
           if (mounted) {
-            setInscripciones(inscripcionesResponse?.data ?? [])
+            const inscripcionesData = inscripcionesResponse?.data ?? []
+            setInscripciones(inscripcionesData)
+            setCantidadVisualizada(inscripcionesResponse?.count ?? inscripcionesData.length)
             setFacultades(facultadesResponse?.data ?? [])
             setCarreras(carrerasResponse?.data ?? [])
             setActividades(actividadesResponse?.data ?? [])
@@ -74,7 +84,9 @@ function InscripcionesPage() {
         } else if (isStudent) {
           const response = await listarMisInscripciones()
           if (mounted) {
-            setInscripciones(response?.data ?? [])
+            const inscripcionesData = response?.data ?? []
+            setInscripciones(inscripcionesData)
+            setCantidadVisualizada(inscripcionesData.length)
           }
         }
       } catch (requestError) {
@@ -93,25 +105,33 @@ function InscripcionesPage() {
     return () => {
       mounted = false
     }
-  }, [isAdmin, isStudent, fechaDesde, fechaHasta])
+  }, [
+    isAdmin,
+    isStudent,
+    fechaDesde,
+    fechaHasta,
+    filtroFacultad,
+    filtroCarrera,
+    filtroActividad,
+    filtroDisciplina,
+  ])
 
   const carrerasPorFacultad = useMemo(() => {
     return carreras.filter((carrera) => !filtroFacultad || String(carrera.id_facultad) === filtroFacultad)
   }, [carreras, filtroFacultad])
 
-  const inscripcionesFiltradas = useMemo(() => {
-    return inscripciones.filter((inscripcion) => {
-      const cumpleFacultad = !filtroFacultad || String(inscripcion.id_facultad) === filtroFacultad
-      const cumpleCarrera = !filtroCarrera || String(inscripcion.id_carrera) === filtroCarrera
-      const cumpleActividad = !filtroActividad || String(inscripcion.id_actividad) === filtroActividad
-      const cumpleDisciplina = !filtroDisciplina || String(inscripcion.id_disciplina) === filtroDisciplina
-      return cumpleFacultad && cumpleCarrera && cumpleActividad && cumpleDisciplina
-    })
-  }, [inscripciones, filtroFacultad, filtroCarrera, filtroActividad, filtroDisciplina])
-
   async function recargarAdmin(nuevoDesde = fechaDesde, nuevoHasta = fechaHasta) {
-    const response = await listarInscripcionesAdmin({ fechaDesde: nuevoDesde, fechaHasta: nuevoHasta })
-    setInscripciones(response?.data ?? [])
+    const response = await listarInscripcionesAdmin({
+      fechaDesde: nuevoDesde,
+      fechaHasta: nuevoHasta,
+      idFacultad: filtroFacultad,
+      idCarrera: filtroCarrera,
+      idActividad: filtroActividad,
+      idDisciplina: filtroDisciplina,
+    })
+    const inscripcionesData = response?.data ?? []
+    setInscripciones(inscripcionesData)
+    setCantidadVisualizada(response?.count ?? inscripcionesData.length)
   }
 
   async function handleAplicarRango(event) {
@@ -139,7 +159,9 @@ function InscripcionesPage() {
         await recargarAdmin()
       } else {
         const response = await listarMisInscripciones()
-        setInscripciones(response?.data ?? [])
+        const inscripcionesData = response?.data ?? []
+        setInscripciones(inscripcionesData)
+        setCantidadVisualizada(inscripcionesData.length)
       }
 
       setSuccessMessage('Inscripción dada de baja')
@@ -222,10 +244,11 @@ function InscripcionesPage() {
       ) : null}
 
       <CrudCard title={isAdmin ? 'Tabla de inscripciones' : 'Mis inscripciones'}>
+        {!isLoading ? <p>Inscripciones visualizadas: {cantidadVisualizada}</p> : null}
         {isLoading ? <p>Cargando inscripciones...</p> : null}
-        {!isLoading && inscripcionesFiltradas.length === 0 ? <p>No hay inscripciones para mostrar.</p> : null}
+        {!isLoading && inscripciones.length === 0 ? <p>No hay inscripciones para mostrar.</p> : null}
 
-        {!isLoading && inscripcionesFiltradas.length > 0 ? (
+        {!isLoading && inscripciones.length > 0 ? (
           <div className="admin-table-wrap">
             <table className="admin-table">
               <thead>
@@ -243,7 +266,7 @@ function InscripcionesPage() {
                 </tr>
               </thead>
               <tbody>
-                {inscripcionesFiltradas.map((inscripcion) => (
+                {inscripciones.map((inscripcion) => (
                   <tr key={inscripcion.id_inscripcion}>
                     <td>{`${inscripcion.estudiante_nombre ?? ''} ${inscripcion.estudiante_apellido ?? ''}`.trim()}</td>
                     <td>{inscripcion.ci}</td>

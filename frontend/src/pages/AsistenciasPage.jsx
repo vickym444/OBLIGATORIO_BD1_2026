@@ -32,6 +32,14 @@ function buildAsistenciaMap(practicas) {
   return map
 }
 
+function formatPercent(value) {
+  const numeric = Number(value ?? 0)
+  if (Number.isInteger(numeric)) {
+    return String(numeric)
+  }
+  return numeric.toFixed(2).replace(/\.00$/, '')
+}
+
 function AsistenciasPage() {
   const [practicas, setPracticas] = useState([])
   const [asistencias, setAsistencias] = useState({})
@@ -218,8 +226,9 @@ function AsistenciasPage() {
                           </div>
 
                           <div className="attendance-practice__counter">
-                            <span>{practica.total_presentes} presentes</span>
-                            <span>{practica.total_inscriptos} confirmados</span>
+                            <span>{practica.total_presentes ?? 0} presentes</span>
+                            <span>{practica.total_inscriptos ?? 0} confirmados</span>
+                            <span>{formatPercent(practica.porcentaje_asistencia)}% asistencia</span>
                           </div>
                         </summary>
 

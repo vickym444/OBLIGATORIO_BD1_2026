@@ -18,14 +18,36 @@ def listar_por_actividad(id_actividad: int, _=Depends(get_current_user)):
 
 
 @router.get("/fecha/{fecha}")
-def listar_por_fecha(fecha: date, _=Depends(get_current_user)):
-    return {"data": practica_service.listar_practicas_por_fecha(fecha)}
+def listar_por_fecha(
+    fecha: date,
+    ordenar_porcentaje: bool = False,
+    solo_cupos_disponibles: bool = False,
+    _=Depends(get_current_user),
+):
+    return {
+        "data": practica_service.listar_practicas_por_fecha(
+            fecha,
+            ordenar_porcentaje=ordenar_porcentaje,
+            solo_cupos_disponibles=solo_cupos_disponibles,
+        )
+    }
 
 
 @router.get("/rango")
-def listar_por_rango(fecha_desde: date, fecha_hasta: date, _=Depends(get_current_user)):
+def listar_por_rango(
+    fecha_desde: date,
+    fecha_hasta: date,
+    ordenar_porcentaje: bool = False,
+    solo_cupos_disponibles: bool = False,
+    _=Depends(get_current_user),
+):
     try:
-        practicas = practica_service.listar_practicas_por_rango_fechas(fecha_desde, fecha_hasta)
+        practicas = practica_service.listar_practicas_por_rango_fechas(
+            fecha_desde,
+            fecha_hasta,
+            ordenar_porcentaje=ordenar_porcentaje,
+            solo_cupos_disponibles=solo_cupos_disponibles,
+        )
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     return {"data": practicas}

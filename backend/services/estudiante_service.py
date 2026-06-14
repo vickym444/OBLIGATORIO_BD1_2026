@@ -7,8 +7,8 @@ class EstudianteService:
         self.repository = repository or EstudianteRepository()
         self.carrera_repository = CarreraRepository()
 
-    def listar_estudiantes(self):
-        return self.repository.get_all_estudiantes()
+    def listar_estudiantes(self, solo_con_3_inasistencias=False):
+        return self.repository.get_all_estudiantes(solo_con_3_inasistencias=solo_con_3_inasistencias)
 
     def obtener_estudiante(self, id_estudiante):
         return self.repository.get_estudiante_by_id(id_estudiante)

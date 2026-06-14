@@ -10,9 +10,21 @@ router = APIRouter(prefix="/inscripciones", tags=["inscripciones"])
 def listar(
     fecha_desde: str | None = None,
     fecha_hasta: str | None = None,
+    id_facultad: int | None = None,
+    id_carrera: int | None = None,
+    id_actividad: int | None = None,
+    id_disciplina: int | None = None,
     _=Depends(require_admin),
 ):
-    return {"data": inscripcion_service.listar_inscripciones(fecha_desde, fecha_hasta)}
+    inscripciones = inscripcion_service.listar_inscripciones(
+        fecha_desde,
+        fecha_hasta,
+        id_facultad=id_facultad,
+        id_carrera=id_carrera,
+        id_actividad=id_actividad,
+        id_disciplina=id_disciplina,
+    )
+    return {"data": inscripciones, "count": len(inscripciones)}
 
 
 @router.get("/mias")

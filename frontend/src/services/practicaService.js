@@ -8,15 +8,34 @@ export function listarPracticasPorActividad(idActividad) {
   return request(`/practicas/actividad/${idActividad}`)
 }
 
-export function listarPracticasPorFecha(fecha) {
-  return request(`/practicas/fecha/${fecha}`)
+export function listarPracticasPorFecha(fecha, ordenarPorcentaje = false, soloCuposDisponibles = false) {
+  const params = new URLSearchParams()
+
+  if (ordenarPorcentaje) {
+    params.set('ordenar_porcentaje', 'true')
+  }
+
+  if (soloCuposDisponibles) {
+    params.set('solo_cupos_disponibles', 'true')
+  }
+
+  const query = params.toString()
+  return request(`/practicas/fecha/${fecha}${query ? `?${query}` : ''}`)
 }
 
-export function listarPracticasPorRango(fechaDesde, fechaHasta) {
+export function listarPracticasPorRango(fechaDesde, fechaHasta, ordenarPorcentaje = false, soloCuposDisponibles = false) {
   const params = new URLSearchParams({
     fecha_desde: fechaDesde,
     fecha_hasta: fechaHasta,
   })
+
+  if (ordenarPorcentaje) {
+    params.set('ordenar_porcentaje', 'true')
+  }
+
+  if (soloCuposDisponibles) {
+    params.set('solo_cupos_disponibles', 'true')
+  }
 
   return request(`/practicas/rango?${params.toString()}`)
 }

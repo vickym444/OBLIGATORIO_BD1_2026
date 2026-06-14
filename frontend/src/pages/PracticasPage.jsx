@@ -25,6 +25,7 @@ const modeOptions = [
 
 function PracticasPage() {
   const { user, hasRole, isAuthenticated, isLoading: isAuthLoading } = useAuth()
+  const isAdmin = hasRole('admin')
   const [actividades, setActividades] = useState([])
   const [practicas, setPracticas] = useState([])
   const [misInscripciones, setMisInscripciones] = useState([])
@@ -41,6 +42,8 @@ function PracticasPage() {
   const [fechaHasta, setFechaHasta] = useState(initialDateTo)
   const [actividadId, setActividadId] = useState('')
   const [consultaActiva, setConsultaActiva] = useState('')
+  const [ordenarPorcentaje, setOrdenarPorcentaje] = useState(false)
+  const [soloCuposDisponibles, setSoloCuposDisponibles] = useState(false)
 
   useEffect(() => {
     if (isAuthLoading) {
@@ -115,6 +118,33 @@ function PracticasPage() {
     setError('')
   }
 
+  async function cargarPracticasActuales({ preservarConsulta = true } = {}) {
+    if (mode === 'rango') {
+      if (!fechaDesde || !fechaHasta) {
+        setError('Debes seleccionar fecha desde y fecha hasta')
+        return
+      }
+
+      const response = await listarPracticasPorRango(fechaDesde, fechaHasta, ordenarPorcentaje, soloCuposDisponibles)
+      setPracticas(response?.data ?? [])
+      if (preservarConsulta) {
+        setConsultaActiva(`Rango ${fechaDesde} a ${fechaHasta}`)
+      }
+      return
+    }
+
+    if (!fecha) {
+      setError('Debes seleccionar una fecha')
+      return
+    }
+
+    const response = await listarPracticasPorFecha(fecha, ordenarPorcentaje, soloCuposDisponibles)
+    setPracticas(response?.data ?? [])
+    if (preservarConsulta) {
+      setConsultaActiva(`Fecha ${fecha}`)
+    }
+  }
+
   async function consultarPracticas(event) {
     event.preventDefault()
 
@@ -122,28 +152,65 @@ function PracticasPage() {
       setIsSearching(true)
       setError('')
 
-      if (mode === 'rango') {
-        if (!fechaDesde || !fechaHasta) {
-          setError('Debes seleccionar fecha desde y fecha hasta')
+      await cargarPracticasActuales()
+    } catch (requestError) {
+      setError(requestError.message || 'No se pudieron consultar las prácticas')
+    } finally {
+      setIsSearching(false)
+    }
+  }
+
+  async function handleOrdenarPorcentajeChange(event) {
+    const checked = event.target.checked
+    setOrdenarPorcentaje(checked)
+
+    if (!consultaActiva) {
+      return
+    }
+
+    try {
+      setIsSearching(true)
+      setError('')
+      await (async () => {
+        if (mode === 'rango') {
+          const response = await listarPracticasPorRango(fechaDesde, fechaHasta, checked, soloCuposDisponibles)
+          setPracticas(response?.data ?? [])
           return
         }
 
-        const response = await listarPracticasPorRango(fechaDesde, fechaHasta)
+        const response = await listarPracticasPorFecha(fecha, checked, soloCuposDisponibles)
         setPracticas(response?.data ?? [])
-        setConsultaActiva(`Rango ${fechaDesde} a ${fechaHasta}`)
-        return
-      }
-
-      if (!fecha) {
-        setError('Debes seleccionar una fecha')
-        return
-      }
-
-      const response = await listarPracticasPorFecha(fecha)
-      setPracticas(response?.data ?? [])
-      setConsultaActiva(`Fecha ${fecha}`)
+      })()
     } catch (requestError) {
-      setError(requestError.message || 'No se pudieron consultar las prácticas')
+      setError(requestError.message || 'No se pudieron reordenar las prácticas')
+    } finally {
+      setIsSearching(false)
+    }
+  }
+
+  async function handleSoloCuposDisponiblesChange(event) {
+    const checked = event.target.checked
+    setSoloCuposDisponibles(checked)
+
+    if (!consultaActiva) {
+      return
+    }
+
+    try {
+      setIsSearching(true)
+      setError('')
+      await (async () => {
+        if (mode === 'rango') {
+          const response = await listarPracticasPorRango(fechaDesde, fechaHasta, ordenarPorcentaje, checked)
+          setPracticas(response?.data ?? [])
+          return
+        }
+
+        const response = await listarPracticasPorFecha(fecha, ordenarPorcentaje, checked)
+        setPracticas(response?.data ?? [])
+      })()
+    } catch (requestError) {
+      setError(requestError.message || 'No se pudieron filtrar las prácticas')
     } finally {
       setIsSearching(false)
     }
@@ -166,8 +233,8 @@ function PracticasPage() {
       if (consultaActiva) {
         const response =
           mode === 'rango'
-            ? await listarPracticasPorRango(fechaDesde, fechaHasta)
-            : await listarPracticasPorFecha(fecha)
+            ? await listarPracticasPorRango(fechaDesde, fechaHasta, ordenarPorcentaje, soloCuposDisponibles)
+            : await listarPracticasPorFecha(fecha, ordenarPorcentaje, soloCuposDisponibles)
 
         setPracticas(response?.data ?? [])
       }
@@ -286,6 +353,28 @@ function PracticasPage() {
                 }))}
                 className="crud-field--full"
               />
+
+              {isAdmin ? (
+                <>
+                  <label className="practice-sort-toggle crud-field--full">
+                    <input
+                      type="checkbox"
+                      checked={ordenarPorcentaje}
+                      onChange={handleOrdenarPorcentajeChange}
+                    />
+                    <span>Ordenar por porcentaje de inscriptos</span>
+                  </label>
+
+                  <label className="practice-sort-toggle crud-field--full">
+                    <input
+                      type="checkbox"
+                      checked={soloCuposDisponibles}
+                      onChange={handleSoloCuposDisponiblesChange}
+                    />
+                    <span>Mostrar solo prácticas con cupos disponibles</span>
+                  </label>
+                </>
+              ) : null}
             </div>
 
             <div className="crud-form__actions">

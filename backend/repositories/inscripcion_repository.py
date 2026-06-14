@@ -2,7 +2,15 @@ from database.connection import get_connection
 
 
 class InscripcionRepository:
-    def get_all_inscripciones(self, fecha_desde=None, fecha_hasta=None):
+    def get_all_inscripciones(
+        self,
+        fecha_desde=None,
+        fecha_hasta=None,
+        id_facultad=None,
+        id_carrera=None,
+        id_actividad=None,
+        id_disciplina=None,
+    ):
         connection = get_connection()
         try:
             cursor = connection.cursor(dictionary=True)
@@ -16,6 +24,22 @@ class InscripcionRepository:
             if fecha_hasta is not None:
                 filtros.append("p.fecha <= %s")
                 params.append(fecha_hasta)
+
+            if id_facultad is not None:
+                filtros.append("f.id_facultad = %s")
+                params.append(id_facultad)
+
+            if id_carrera is not None:
+                filtros.append("c.id_carrera = %s")
+                params.append(id_carrera)
+
+            if id_actividad is not None:
+                filtros.append("p.id_actividad = %s")
+                params.append(id_actividad)
+
+            if id_disciplina is not None:
+                filtros.append("d.id_disciplina = %s")
+                params.append(id_disciplina)
 
             where_sql = "WHERE i.fecha_baja IS NULL"
             if filtros:
@@ -31,6 +55,9 @@ class InscripcionRepository:
                        i.id_practica,
                        p.fecha AS fecha_practica,
                        p.id_actividad,
+                      c.id_carrera,
+                      f.id_facultad,
+                      d.id_disciplina,
                        a.nombre AS actividad_nombre,
                        a.dia,
                        a.hora_inicio,

@@ -18,16 +18,25 @@ class PracticaService:
     def obtener_practica(self, id_practica):
         return self.repository.get_practica_by_id(id_practica)
 
-    def listar_practicas_por_fecha(self, fecha):
+    def listar_practicas_por_fecha(self, fecha, ordenar_porcentaje=False, solo_cupos_disponibles=False):
         fecha = self._normalizar_fecha(fecha)
-        return self.repository.get_practicas_by_fecha(fecha)
+        return self.repository.get_practicas_by_fecha_ordenadas(
+            fecha,
+            ordenar_porcentaje=ordenar_porcentaje,
+            solo_cupos_disponibles=solo_cupos_disponibles,
+        )
 
-    def listar_practicas_por_rango_fechas(self, fecha_desde, fecha_hasta):
+    def listar_practicas_por_rango_fechas(self, fecha_desde, fecha_hasta, ordenar_porcentaje=False, solo_cupos_disponibles=False):
         fecha_desde = self._normalizar_fecha(fecha_desde)
         fecha_hasta = self._normalizar_fecha(fecha_hasta)
         if fecha_hasta < fecha_desde:
             raise ValueError("La fecha final no puede ser anterior a la fecha inicial")
-        return self.repository.get_practicas_by_rango_fechas(fecha_desde, fecha_hasta)
+        return self.repository.get_practicas_by_rango_fechas(
+            fecha_desde,
+            fecha_hasta,
+            ordenar_porcentaje=ordenar_porcentaje,
+            solo_cupos_disponibles=solo_cupos_disponibles,
+        )
 
     def _normalizar_fecha(self, fecha):
         if isinstance(fecha, date):

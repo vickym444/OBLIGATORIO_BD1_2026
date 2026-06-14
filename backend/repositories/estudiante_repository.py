@@ -2,16 +2,46 @@ from database.connection import get_connection
 
 
 class EstudianteRepository:
-    def get_all_estudiantes(self):
+    def get_all_estudiantes(self, solo_con_3_inasistencias=False):
         connection = get_connection()
         try:
             cursor = connection.cursor(dictionary=True)
+            filtros = ["e.activo = 1"]
+            if solo_con_3_inasistencias:
+                filtros.append("COALESCE(ina.total_inasistencias, 0) >= 3")
+
+            where_sql = "WHERE " + " AND ".join(filtros)
+            order_sql = (
+                "ORDER BY COALESCE(ina.total_inasistencias, 0) DESC, e.id_estudiante"
+                if solo_con_3_inasistencias
+                else "ORDER BY e.id_estudiante"
+            )
+
             cursor.execute(
-                """
-                SELECT id_estudiante, documento, nombre, apellido, email, activo, id_carrera
-                FROM estudiante
-                WHERE activo = 1
-                ORDER BY id_estudiante
+                f"""
+                SELECT e.id_estudiante,
+                       e.documento,
+                       e.nombre,
+                       e.apellido,
+                       e.email,
+                       e.activo,
+                       e.id_carrera,
+                       COALESCE(ina.total_inasistencias, 0) AS total_inasistencias
+                FROM estudiante e
+                LEFT JOIN (
+                    SELECT i.id_estudiante,
+                           COUNT(*) AS total_inasistencias
+                    FROM inscripcion i
+                    INNER JOIN practica p ON p.id_practica = i.id_practica
+                    LEFT JOIN asistencia a ON a.id_inscripcion = i.id_inscripcion
+                    WHERE i.fecha_baja IS NULL
+                      AND i.estado = 'confirmada'
+                      AND p.fecha < CURDATE()
+                      AND (a.id_asistencia IS NULL OR a.presente = 0)
+                    GROUP BY i.id_estudiante
+                ) ina ON ina.id_estudiante = e.id_estudiante
+                {where_sql}
+                {order_sql}
                 """
             )
             return cursor.fetchall()

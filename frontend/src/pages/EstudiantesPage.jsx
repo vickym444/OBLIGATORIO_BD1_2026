@@ -26,6 +26,7 @@ function EstudiantesPage() {
   const [error, setError] = useState('')
   const [formValues, setFormValues] = useState(initialForm)
   const [editingId, setEditingId] = useState(null)
+  const [soloCon3Inasistencias, setSoloCon3Inasistencias] = useState(false)
 
   useEffect(() => {
     let isMounted = true
@@ -36,7 +37,7 @@ function EstudiantesPage() {
         setError('')
 
         const [estudiantesResponse, carrerasResponse] = await Promise.all([
-          listarEstudiantes(),
+          listarEstudiantes(soloCon3Inasistencias),
           listarCarreras(),
         ])
         const data = estudiantesResponse?.data ?? []
@@ -61,7 +62,7 @@ function EstudiantesPage() {
     return () => {
       isMounted = false
     }
-  }, [])
+  }, [soloCon3Inasistencias])
 
   function handleChange(event) {
     const { name, value } = event.target
@@ -78,7 +79,7 @@ function EstudiantesPage() {
   }
 
   async function reloadEstudiantes() {
-    const response = await listarEstudiantes()
+    const response = await listarEstudiantes(soloCon3Inasistencias)
     setEstudiantes(response?.data ?? [])
   }
 
@@ -258,6 +259,15 @@ function EstudiantesPage() {
         </CrudCard>
 
         <CrudCard title="Listado de estudiantes">
+          <label className="practice-sort-toggle">
+            <input
+              type="checkbox"
+              checked={soloCon3Inasistencias}
+              onChange={(event) => setSoloCon3Inasistencias(event.target.checked)}
+            />
+            <span>Mostrar únicamente estudiantes con 3 o más inasistencias</span>
+          </label>
+
           {isLoading ? <p>Cargando estudiantes...</p> : null}
 
           {!isLoading && !error && estudiantes.length === 0 ? <p>No hay estudiantes cargados.</p> : null}
@@ -274,6 +284,7 @@ function EstudiantesPage() {
                     <span>{estudiante.documento}</span>
                     <span>{estudiante.email}</span>
                     <span>{getCarreraNombre(estudiante.id_carrera)}</span>
+                    <span>Inasistencias acumuladas: {estudiante.total_inasistencias ?? 0}</span>
                   </div>
 
                   <div className="crud-list__actions">

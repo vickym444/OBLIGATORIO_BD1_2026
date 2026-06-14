@@ -20,11 +20,19 @@ class AsistenciaService:
             inscriptos = self.inscripcion_repo.get_inscripciones_confirmadas_con_asistencia_by_practica(
                 practica["id_practica"]
             )
+            total_confirmados = len(inscriptos)
+            total_presentes = sum(
+                1 for inscripcion in inscriptos if bool(inscripcion.get("presente"))
+            )
+
             practica_con_inscriptos = dict(practica)
             practica_con_inscriptos["inscriptos"] = inscriptos
-            practica_con_inscriptos["total_inscriptos"] = len(inscriptos)
-            practica_con_inscriptos["total_presentes"] = sum(
-                1 for inscripcion in inscriptos if bool(inscripcion.get("presente"))
+            practica_con_inscriptos["total_inscriptos"] = total_confirmados
+            practica_con_inscriptos["total_presentes"] = total_presentes
+            practica_con_inscriptos["porcentaje_asistencia"] = (
+                round((total_presentes * 100.0) / total_confirmados, 2)
+                if total_confirmados > 0
+                else 0
             )
             resultado.append(practica_con_inscriptos)
 

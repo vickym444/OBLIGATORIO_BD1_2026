@@ -15,7 +15,7 @@ export function listarMisInscripciones() {
   return request('/inscripciones/mias')
 }
 
-export function listarInscripcionesAdmin({ fechaDesde, fechaHasta } = {}) {
+export function listarInscripcionesAdmin({ fechaDesde, fechaHasta, idFacultad, idCarrera, idActividad, idDisciplina } = {}) {
   const params = new URLSearchParams()
 
   if (fechaDesde) {
@@ -24,6 +24,22 @@ export function listarInscripcionesAdmin({ fechaDesde, fechaHasta } = {}) {
 
   if (fechaHasta) {
     params.set('fecha_hasta', fechaHasta)
+  }
+
+  if (idFacultad) {
+    params.set('id_facultad', idFacultad)
+  }
+
+  if (idCarrera) {
+    params.set('id_carrera', idCarrera)
+  }
+
+  if (idActividad) {
+    params.set('id_actividad', idActividad)
+  }
+
+  if (idDisciplina) {
+    params.set('id_disciplina', idDisciplina)
   }
 
   const query = params.toString()
