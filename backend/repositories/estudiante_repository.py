@@ -10,6 +10,7 @@ class EstudianteRepository:
                 """
                 SELECT id_estudiante, documento, nombre, apellido, email, activo, id_carrera
                 FROM estudiante
+                WHERE activo = 1
                 ORDER BY id_estudiante
                 """
             )
@@ -28,6 +29,38 @@ class EstudianteRepository:
                 WHERE id_estudiante = %s
                 """,
                 (id_estudiante,)
+            )
+            return cursor.fetchone()
+        finally:
+            connection.close()
+
+    def get_estudiante_by_documento(self, documento):
+        connection = get_connection()
+        try:
+            cursor = connection.cursor(dictionary=True)
+            cursor.execute(
+                """
+                SELECT id_estudiante, documento, nombre, apellido, email, activo, id_carrera
+                FROM estudiante
+                WHERE documento = %s
+                """,
+                (documento,)
+            )
+            return cursor.fetchone()
+        finally:
+            connection.close()
+
+    def get_estudiante_by_email(self, email):
+        connection = get_connection()
+        try:
+            cursor = connection.cursor(dictionary=True)
+            cursor.execute(
+                """
+                SELECT id_estudiante, documento, nombre, apellido, email, activo, id_carrera
+                FROM estudiante
+                WHERE email = %s
+                """,
+                (email,)
             )
             return cursor.fetchone()
         finally:

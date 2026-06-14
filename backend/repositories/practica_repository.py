@@ -18,6 +18,40 @@ class PracticaRepository:
         finally:
             connection.close()
 
+    def get_practica_by_actividad_y_fecha(self, id_actividad, fecha):
+        connection = get_connection()
+        try:
+            cursor = connection.cursor(dictionary=True)
+            cursor.execute(
+                """
+                SELECT id_practica, id_actividad, fecha, activo
+                FROM practica
+                WHERE id_actividad = %s AND fecha = %s
+                """,
+                (id_actividad, fecha)
+            )
+            return cursor.fetchone()
+        finally:
+            connection.close()
+
+    def get_practica_by_actividad_y_fecha_inactiva(self, id_actividad, fecha):
+        connection = get_connection()
+        try:
+            cursor = connection.cursor(dictionary=True)
+            cursor.execute(
+                """
+                SELECT id_practica, id_actividad, fecha, activo
+                FROM practica
+                WHERE id_actividad = %s
+                  AND fecha = %s
+                  AND activo = 0
+                """,
+                (id_actividad, fecha)
+            )
+            return cursor.fetchone()
+        finally:
+            connection.close()
+
     def get_practicas_by_actividad(self, id_actividad):
         connection = get_connection()
         try:
@@ -32,6 +66,25 @@ class PracticaRepository:
                 (id_actividad,)
             )
             return cursor.fetchall()
+        finally:
+            connection.close()
+
+    def reactivate_practica(self, id_practica, id_actividad, fecha):
+        connection = get_connection()
+        try:
+            cursor = connection.cursor()
+            cursor.execute(
+                """
+                UPDATE practica
+                SET id_actividad = %s,
+                    fecha = %s,
+                    activo = 1
+                WHERE id_practica = %s
+                """,
+                (id_actividad, fecha, id_practica)
+            )
+            connection.commit()
+            return cursor.rowcount
         finally:
             connection.close()
 

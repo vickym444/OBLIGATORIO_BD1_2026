@@ -20,27 +20,33 @@ def obtener(id_estudiante: int):
 
 @router.post("")
 def crear(data: EstudianteCreate):
-    id_nuevo = service.crear_estudiante(
-        data.documento,
-        data.nombre,
-        data.apellido,
-        data.email,
-        data.id_carrera
-    )
+    try:
+        id_nuevo = service.crear_estudiante(
+            data.documento,
+            data.nombre,
+            data.apellido,
+            data.email,
+            data.id_carrera
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
     return {"data": {"id_estudiante": id_nuevo}}
 
 
 @router.put("/{id_estudiante}")
 def actualizar(id_estudiante: int, data: EstudianteUpdate):
-    filas = service.actualizar_estudiante(
-        id_estudiante,
-        data.documento,
-        data.nombre,
-        data.apellido,
-        data.email,
-        data.activo,
-        data.id_carrera
-    )
+    try:
+        filas = service.actualizar_estudiante(
+            id_estudiante,
+            data.documento,
+            data.nombre,
+            data.apellido,
+            data.email,
+            data.activo,
+            data.id_carrera
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
     if not filas:
         raise HTTPException(status_code=404, detail="Estudiante no encontrado")
     return {"data": {"actualizado": True}}

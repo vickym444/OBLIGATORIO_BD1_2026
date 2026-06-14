@@ -25,21 +25,27 @@ def obtener(id_practica: int):
 
 @router.post("")
 def crear(data: PracticaCreate):
-    id_nuevo = practica_service.crear_practica(
-        data.id_actividad,
-        data.fecha
-    )
+    try:
+        id_nuevo = practica_service.crear_practica(
+            data.id_actividad,
+            data.fecha
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
     return {"data": {"id_practica": id_nuevo}}
 
 
 @router.put("/{id_practica}")
 def actualizar(id_practica: int, data: PracticaUpdate):
-    filas = practica_service.actualizar_practica(
-        id_practica,
-        data.id_actividad,
-        data.fecha,
-        data.activo
-    )
+    try:
+        filas = practica_service.actualizar_practica(
+            id_practica,
+            data.id_actividad,
+            data.fecha,
+            data.activo
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
     if not filas:
         raise HTTPException(status_code=404, detail="Practica no encontrada")
     return {"data": {"actualizado": True}}

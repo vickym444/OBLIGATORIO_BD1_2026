@@ -201,6 +201,123 @@
   margin-top: 0;
 }
 
+.crud-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 420px) minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.crud-card {
+  display: grid;
+  gap: 16px;
+  padding: 20px;
+  border-radius: 18px;
+  background: linear-gradient(180deg, #ffffff 0%, #f7fafc 100%);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.crud-card h2 {
+  margin: 0;
+  color: #102a43;
+}
+
+.crud-form {
+  display: grid;
+  gap: 16px;
+}
+
+.crud-form__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.crud-field {
+  display: grid;
+  gap: 8px;
+}
+
+.crud-field--full {
+  grid-column: 1 / -1;
+}
+
+.crud-field span {
+  font-weight: 600;
+  color: #334e68;
+}
+
+.crud-field input,
+.crud-field select,
+.crud-field textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  border-radius: 12px;
+  background: #fff;
+}
+
+.crud-field textarea {
+  resize: vertical;
+}
+
+.crud-form__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.crud-form__actions button,
+.crud-list__actions button {
+  padding: 10px 14px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  border-radius: 12px;
+  background: #fff;
+  color: #102a43;
+  cursor: pointer;
+}
+
+.crud-form__actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.crud-message {
+  margin: 0;
+}
+
+.crud-message--error {
+  color: #b42318;
+}
+
+.crud-list {
+  display: grid;
+  gap: 12px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.crud-list__item {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: rgba(16, 42, 67, 0.04);
+}
+
+.crud-list__item strong,
+.crud-list__item span {
+  display: block;
+}
+
+.crud-list__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
 .dashboard-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -568,6 +685,14 @@
     grid-template-columns: 1fr;
   }
 
+  .crud-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .crud-form__grid {
+    grid-template-columns: 1fr;
+  }
+
   .career-grid {
     grid-template-columns: 1fr;
   }
@@ -578,7 +703,8 @@
 
   .faculty-list__item,
   .career-list__item,
-  .space-list__item {
+  .space-list__item,
+  .crud-list__item {
     flex-direction: column;
   }
 }
