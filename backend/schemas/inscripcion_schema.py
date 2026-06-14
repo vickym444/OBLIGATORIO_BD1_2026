@@ -12,7 +12,7 @@ class EstadoInscripcionEnum(str, Enum):
 
 class InscripcionCreate(BaseModel):
     fecha_inscripcion: date
-    estado: EstadoInscripcionEnum
+    estado: Optional[EstadoInscripcionEnum] = None
     id_estudiante: int
     id_practica: int
 

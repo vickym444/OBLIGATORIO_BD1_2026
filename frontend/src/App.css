@@ -290,6 +290,10 @@
   color: #b42318;
 }
 
+.crud-message--success {
+  color: #166534;
+}
+
 .crud-list {
   display: grid;
   gap: 12px;
@@ -378,6 +382,13 @@
   display: block;
 }
 
+.practice-list__side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+
 .practice-list__badge {
   align-self: flex-start;
   padding: 8px 10px;
@@ -387,6 +398,59 @@
   font-size: 12px;
   font-weight: 600;
   white-space: nowrap;
+}
+
+.practice-list__badge--confirmada {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.practice-list__badge--en_espera {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.practice-list__badge--disponible {
+  background: #e7f5ef;
+  color: #1e6f57;
+}
+
+.practice-list__button,
+.inscripcion-list__button {
+  padding: 10px 14px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  border-radius: 12px;
+  background: #fff;
+  color: #102a43;
+  cursor: pointer;
+}
+
+.practice-list__button:disabled,
+.inscripcion-list__button:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.inscripcion-list {
+  display: grid;
+  gap: 12px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.inscripcion-list__item {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: rgba(16, 42, 67, 0.04);
+}
+
+.inscripcion-list__item strong,
+.inscripcion-list__item span {
+  display: block;
 }
 
 .practice-helper {
@@ -838,7 +902,13 @@
   .faculty-list__item,
   .career-list__item,
   .space-list__item,
-  .crud-list__item {
+  .crud-list__item,
+  .practice-list__item,
+  .inscripcion-list__item {
     flex-direction: column;
+  }
+
+  .practice-list__side {
+    align-items: flex-start;
   }
 }

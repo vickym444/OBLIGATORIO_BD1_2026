@@ -1,6 +1,15 @@
 import PracticaListItem from './PracticaListItem'
 
-function PracticaGroup({ fecha, practicas, getActividadNombre, getDetalleActividad }) {
+function PracticaGroup({
+  fecha,
+  practicas,
+  getActividadNombre,
+  getDetalleActividad,
+  getEstadoInscripcion,
+  onInscribir,
+  isInscribiendoId,
+  canInscribir,
+}) {
   return (
     <section className="practice-group">
       <header className="practice-group__header">
@@ -15,6 +24,10 @@ function PracticaGroup({ fecha, practicas, getActividadNombre, getDetalleActivid
             practica={practica}
             actividadNombre={getActividadNombre(practica.id_actividad)}
             detalleActividad={getDetalleActividad(practica.id_actividad)}
+            estadoInscripcion={getEstadoInscripcion?.(practica.id_practica)}
+            onInscribir={onInscribir}
+            isInscribiendo={isInscribiendoId === practica.id_practica}
+            canInscribir={canInscribir}
           />
         ))}
       </ul>

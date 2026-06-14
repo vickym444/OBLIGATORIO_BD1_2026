@@ -1,6 +1,7 @@
 from repositories.inscripcion_repository import InscripcionRepository
 from repositories.practica_repository import PracticaRepository
 from repositories.actividad_repository import ActividadRepository
+from datetime import date
 
 
 class InscripcionService:
@@ -9,8 +10,8 @@ class InscripcionService:
         self.practica_repo = PracticaRepository()
         self.actividad_repo = ActividadRepository()
 
-    def listar_inscripciones(self):
-        return self.repository.get_all_inscripciones()
+    def listar_inscripciones(self, fecha_desde=None, fecha_hasta=None):
+        return self.repository.get_all_inscripciones(fecha_desde=fecha_desde, fecha_hasta=fecha_hasta)
 
     def obtener_inscripcion(self, id_inscripcion):
         return self.repository.get_inscripcion_by_id(id_inscripcion)
@@ -21,32 +22,73 @@ class InscripcionService:
     def listar_por_practica(self, id_practica):
         return self.repository.get_inscripciones_by_practica(id_practica)
 
-    def crear_inscripcion(self, fecha_inscripcion, estado, id_estudiante, id_practica):
-        # Verificar que la practica existe
-        practica = self.practica_repo.get_practica_by_id(id_practica)
-        if not practica:
-            raise ValueError("La práctica no existe")
+    def listar_mias(self, id_estudiante):
+        return self.repository.get_inscripciones_activas_by_estudiante(id_estudiante)
 
-        # Verificar que la actividad está abierta
-        actividad = self.actividad_repo.get_actividad_by_id(practica["id_actividad"])
-        if not actividad:
-            raise ValueError("La actividad no existe")
-        if actividad["estado"] != "abierta":
-            raise ValueError(f"La actividad no está abierta, estado actual: {actividad['estado']}")
+    def _dias_de_actividad(self, dia):
+        mapa = {
+            'Lunes': {'Lunes'},
+            'Martes': {'Martes'},
+            'Miercoles': {'Miercoles'},
+            'Jueves': {'Jueves'},
+            'Viernes': {'Viernes'},
+            'Lunes y Miercoles': {'Lunes', 'Miercoles'},
+            'Martes y Jueves': {'Martes', 'Jueves'},
+            'Miercoles y Viernes': {'Miercoles', 'Viernes'},
+        }
+        return mapa.get(dia, {dia})
 
-        # Verificar que no existe inscripcion activa duplicada
+    def _se_superponen_horarios(self, actividad_a, actividad_b):
+        dias_a = self._dias_de_actividad(actividad_a['dia'])
+        dias_b = self._dias_de_actividad(actividad_b['dia'])
+
+        if not dias_a.intersection(dias_b):
+            return False
+
+        inicio_a = str(actividad_a['hora_inicio'])
+        fin_a = str(actividad_a['hora_fin'])
+        inicio_b = str(actividad_b['hora_inicio'])
+        fin_b = str(actividad_b['hora_fin'])
+
+        return inicio_a < fin_b and inicio_b < fin_a
+
+    def _validar_practica_abierta(self, practica, actividad):
+        if not practica or practica.get('activo') != 1:
+            raise ValueError('La práctica no existe o está inactiva')
+        if not actividad or actividad.get('activo') != 1:
+            raise ValueError('La actividad no existe o está inactiva')
+        if actividad.get('estado') != 'abierta':
+            raise ValueError('La práctica no admite inscripciones en este momento')
+
+    def _validar_sin_duplicado(self, id_estudiante, id_practica):
         existente = self.repository.get_inscripcion_activa(id_estudiante, id_practica)
         if existente:
-            raise ValueError("El estudiante ya tiene una inscripción activa en esta práctica")
+            raise ValueError('Ya estás inscripto a esta práctica')
 
-        # Verificar cupo disponible
-        total_inscriptos = self.repository.count_inscripciones_activas(id_practica)
-        if total_inscriptos >= actividad["cupo_maximo"]:
-            raise ValueError("La actividad no tiene cupo disponible")
+    def _validar_sin_choque_horario(self, id_estudiante, id_practica_objetivo, actividad_objetivo):
+        inscripciones_activas = self.repository.get_inscripciones_activas_by_estudiante(id_estudiante)
+        for inscripcion in inscripciones_activas:
+            if inscripcion['id_practica'] == id_practica_objetivo:
+                continue
+            if self._se_superponen_horarios(inscripcion, actividad_objetivo):
+                raise ValueError('Ya tenés otra práctica inscripta en ese mismo horario')
+
+    def crear_inscripcion(self, fecha_inscripcion, estado, id_estudiante, id_practica):
+        practica = self.practica_repo.get_practica_by_id(id_practica)
+        actividad = None
+        if practica:
+            actividad = self.actividad_repo.get_actividad_by_id(practica['id_actividad'])
+
+        self._validar_practica_abierta(practica, actividad)
+        self._validar_sin_duplicado(id_estudiante, id_practica)
+        self._validar_sin_choque_horario(id_estudiante, id_practica, actividad)
+
+        total_confirmadas = self.repository.count_inscripciones_activas(id_practica)
+        estado_final = 'confirmada' if total_confirmadas < int(actividad['cupo_maximo']) else 'en_espera'
 
         return self.repository.create_inscripcion(
             fecha_inscripcion=fecha_inscripcion,
-            estado=estado,
+            estado=estado_final,
             id_estudiante=id_estudiante,
             id_practica=id_practica
         )
@@ -63,7 +105,17 @@ class InscripcionService:
             raise ValueError("La inscripción no existe")
         if inscripcion["fecha_baja"] is not None:
             raise ValueError("La inscripción ya fue dada de baja")
-        return self.repository.dar_baja(id_inscripcion, fecha_baja)
+
+        filas = self.repository.dar_baja(id_inscripcion, fecha_baja)
+        if not filas:
+            return filas
+
+        if inscripcion["estado"] == "confirmada":
+            siguiente_espera = self.repository.get_inscripcion_en_espera_anterior(inscripcion["id_practica"])
+            if siguiente_espera:
+                self.repository.update_estado(siguiente_espera["id_inscripcion"], "confirmada")
+
+        return filas
 
 
 inscripcion_service = InscripcionService()

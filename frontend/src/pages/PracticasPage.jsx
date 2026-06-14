@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useAuth } from '../contexts/AuthContext'
 import PageShell from '../components/layout/PageShell'
 import CrudCard from '../components/crud/CrudCard'
 import CrudField from '../components/crud/CrudField'
@@ -9,6 +10,7 @@ import {
   listarPracticasPorFecha,
   listarPracticasPorRango,
 } from '../services/practicaService'
+import { inscribirseAPractica, listarMisInscripciones } from '../services/inscripcionService'
 
 const today = new Date()
 const initialDate = today.toISOString().slice(0, 10)
@@ -22,12 +24,17 @@ const modeOptions = [
 ]
 
 function PracticasPage() {
+  const { user, hasRole, isAuthenticated, isLoading: isAuthLoading } = useAuth()
   const [actividades, setActividades] = useState([])
   const [practicas, setPracticas] = useState([])
+  const [misInscripciones, setMisInscripciones] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [isSearching, setIsSearching] = useState(false)
+  const [isLoadingInscripciones, setIsLoadingInscripciones] = useState(true)
   const [isGenerating, setIsGenerating] = useState(false)
+  const [inscribiendoId, setInscribiendoId] = useState(null)
   const [error, setError] = useState('')
+  const [successMessage, setSuccessMessage] = useState('')
   const [mode, setMode] = useState('fecha')
   const [fecha, setFecha] = useState(initialDate)
   const [fechaDesde, setFechaDesde] = useState(initialDate)
@@ -36,6 +43,10 @@ function PracticasPage() {
   const [consultaActiva, setConsultaActiva] = useState('')
 
   useEffect(() => {
+    if (isAuthLoading) {
+      return undefined
+    }
+
     let isMounted = true
 
     async function cargarDatosIniciales() {
@@ -43,10 +54,14 @@ function PracticasPage() {
         setIsLoading(true)
         setError('')
 
-        const actividadesResponse = await listarActividades()
+        const [actividadesResponse, inscripcionesResponse] = await Promise.all([
+          listarActividades(),
+          isAuthenticated && hasRole('estudiante') ? listarMisInscripciones() : Promise.resolve({ data: [] }),
+        ])
 
         if (isMounted) {
           setActividades(actividadesResponse?.data ?? [])
+          setMisInscripciones(inscripcionesResponse?.data ?? [])
         }
       } catch (requestError) {
         if (isMounted) {
@@ -55,6 +70,7 @@ function PracticasPage() {
       } finally {
         if (isMounted) {
           setIsLoading(false)
+          setIsLoadingInscripciones(false)
         }
       }
     }
@@ -64,7 +80,18 @@ function PracticasPage() {
     return () => {
       isMounted = false
     }
-  }, [])
+  }, [isAuthLoading, isAuthenticated, hasRole])
+
+  function getLocalDateString() {
+    const now = new Date()
+    const offsetMinutes = now.getTimezoneOffset()
+    const localDate = new Date(now.getTime() - offsetMinutes * 60 * 1000)
+    return localDate.toISOString().slice(0, 10)
+  }
+
+  const misInscripcionesPorPractica = useMemo(() => {
+    return new Map(misInscripciones.map((inscripcion) => [inscripcion.id_practica, inscripcion]))
+  }, [misInscripciones])
 
   const practicasAgrupadas = useMemo(() => {
     const grupos = new Map()
@@ -165,6 +192,36 @@ function PracticasPage() {
     return `${actividad.dia} · ${actividad.hora_inicio} a ${actividad.hora_fin}`
   }
 
+  function getEstadoInscripcion(idPractica) {
+    return misInscripcionesPorPractica.get(idPractica) ?? null
+  }
+
+  async function handleInscribir(practica) {
+    if (!user?.id_estudiante) {
+      setError('Solo los estudiantes pueden inscribirse')
+      return
+    }
+
+    try {
+      setInscribiendoId(practica.id_practica)
+      setError('')
+      setSuccessMessage('')
+
+      const response = await inscribirseAPractica(practica.id_practica, user.id_estudiante, getLocalDateString())
+      const estadoNuevo = response?.data?.id_inscripcion ? 'Inscripción realizada' : 'Inscripción procesada'
+
+      const inscripcionesResponse = await listarMisInscripciones()
+      setMisInscripciones(inscripcionesResponse?.data ?? [])
+      setSuccessMessage(estadoNuevo)
+    } catch (requestError) {
+      setError(requestError.message || 'No se pudo completar la inscripción')
+    } finally {
+      setInscribiendoId(null)
+    }
+  }
+
+  const puedeInscribirse = isAuthenticated && hasRole('estudiante') && !isLoadingInscripciones
+
   return (
     <PageShell
       eyebrow="Operación"
@@ -243,6 +300,7 @@ function PracticasPage() {
           </form>
 
           {error ? <p className="crud-message crud-message--error">{error}</p> : null}
+          {successMessage ? <p className="crud-message crud-message--success">{successMessage}</p> : null}
           <p className="practice-helper">
             La consulta muestra solo prácticas activas. La generación usa la actividad seleccionada como base.
           </p>
@@ -264,6 +322,10 @@ function PracticasPage() {
                   practicas={grupo.practicas}
                   getActividadNombre={getActividadNombre}
                   getDetalleActividad={getDetalleActividad}
+                  getEstadoInscripcion={getEstadoInscripcion}
+                  onInscribir={puedeInscribirse ? handleInscribir : null}
+                  isInscribiendoId={inscribiendoId}
+                  canInscribir={puedeInscribirse}
                 />
               ))}
             </div>

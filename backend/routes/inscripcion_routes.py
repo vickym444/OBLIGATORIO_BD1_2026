@@ -7,8 +7,19 @@ router = APIRouter(prefix="/inscripciones", tags=["inscripciones"])
 
 
 @router.get("")
-def listar(_=Depends(require_admin)):
-    return {"data": inscripcion_service.listar_inscripciones()}
+def listar(
+    fecha_desde: str | None = None,
+    fecha_hasta: str | None = None,
+    _=Depends(require_admin),
+):
+    return {"data": inscripcion_service.listar_inscripciones(fecha_desde, fecha_hasta)}
+
+
+@router.get("/mias")
+def listar_mias(current_user=Depends(get_current_user)):
+    if current_user.get("id_estudiante") is None:
+        raise forbidden_exception
+    return {"data": inscripcion_service.listar_mias(current_user["id_estudiante"])}
 
 
 @router.get("/{id_inscripcion}")
