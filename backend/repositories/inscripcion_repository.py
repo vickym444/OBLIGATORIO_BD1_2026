@@ -138,6 +138,41 @@ class InscripcionRepository:
         finally:
             connection.close()
 
+    def get_inscripciones_confirmadas_con_asistencia_by_practica(self, id_practica):
+        connection = get_connection()
+        try:
+            cursor = connection.cursor(dictionary=True)
+            cursor.execute(
+                """
+                SELECT i.id_inscripcion,
+                       i.fecha_inscripcion,
+                       i.fecha_baja,
+                       i.estado,
+                       i.id_estudiante,
+                       i.id_practica,
+                       e.documento AS ci,
+                       e.nombre AS estudiante_nombre,
+                       e.apellido AS estudiante_apellido,
+                       c.nombre AS carrera_nombre,
+                       f.nombre AS facultad_nombre,
+                       asis.id_asistencia,
+                       COALESCE(asis.presente, 0) AS presente
+                FROM inscripcion i
+                INNER JOIN estudiante e ON e.id_estudiante = i.id_estudiante
+                INNER JOIN carrera c ON c.id_carrera = e.id_carrera
+                INNER JOIN facultad f ON f.id_facultad = c.id_facultad
+                LEFT JOIN asistencia asis ON asis.id_inscripcion = i.id_inscripcion
+                WHERE i.id_practica = %s
+                  AND i.fecha_baja IS NULL
+                  AND i.estado = 'confirmada'
+                ORDER BY e.apellido, e.nombre, i.id_inscripcion
+                """,
+                (id_practica,)
+            )
+            return cursor.fetchall()
+        finally:
+            connection.close()
+
     def get_inscripcion_activa(self, id_estudiante, id_practica):
         connection = get_connection()
         try:

@@ -81,3 +81,23 @@ class AsistenciaRepository:
             return cursor.rowcount
         finally:
             connection.close()
+
+    def upsert_asistencias(self, registros):
+        if not registros:
+            return 0
+
+        connection = get_connection()
+        try:
+            cursor = connection.cursor()
+            cursor.executemany(
+                """
+                INSERT INTO asistencia (presente, id_inscripcion)
+                VALUES (%s, %s)
+                ON DUPLICATE KEY UPDATE presente = VALUES(presente)
+                """,
+                registros,
+            )
+            connection.commit()
+            return cursor.rowcount
+        finally:
+            connection.close()

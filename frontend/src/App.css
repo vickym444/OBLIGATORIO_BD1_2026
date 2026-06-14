@@ -359,6 +359,190 @@
   font-size: 14px;
 }
 
+.attendance-summary {
+  margin: 0 0 14px;
+  color: #52606d;
+  font-size: 14px;
+}
+
+.attendance-groups {
+  display: grid;
+  gap: 14px;
+}
+
+.attendance-group {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 16px;
+  background: rgba(16, 42, 67, 0.03);
+}
+
+.attendance-group__header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+}
+
+.attendance-group__header h3 {
+  margin: 0;
+  color: #102a43;
+}
+
+.attendance-group__header span {
+  color: #52606d;
+  font-size: 14px;
+}
+
+.attendance-list {
+  display: grid;
+  gap: 10px;
+}
+
+.attendance-practice {
+  overflow: hidden;
+  border-radius: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  background: #fff;
+}
+
+.attendance-practice__summary {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+  padding: 16px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.attendance-practice__summary::-webkit-details-marker {
+  display: none;
+}
+
+.attendance-practice__meta {
+  display: grid;
+  gap: 4px;
+}
+
+.attendance-practice__meta strong {
+  color: #102a43;
+  font-size: 16px;
+}
+
+.attendance-practice__meta span {
+  color: #52606d;
+  font-size: 14px;
+}
+
+.attendance-practice__counter {
+  display: grid;
+  justify-items: end;
+  gap: 4px;
+  color: #334e68;
+  font-weight: 600;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.attendance-practice__body {
+  padding: 0 16px 16px;
+}
+
+.attendance-students {
+  display: grid;
+  gap: 10px;
+}
+
+.attendance-student {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: rgba(16, 42, 67, 0.04);
+}
+
+.attendance-student__info {
+  display: grid;
+  gap: 4px;
+}
+
+.attendance-student__info strong,
+.attendance-student__info span {
+  display: block;
+}
+
+.attendance-student__info strong {
+  color: #102a43;
+}
+
+.attendance-student__info span {
+  color: #52606d;
+  font-size: 14px;
+}
+
+.attendance-student__control {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #334e68;
+  font-weight: 600;
+}
+
+.attendance-student__control input {
+  width: 18px;
+  height: 18px;
+}
+
+.attendance-empty {
+  margin: 0;
+  color: #52606d;
+}
+
+.attendance-actions {
+  justify-content: flex-end;
+}
+
+@media (max-width: 1100px) {
+  .crud-grid,
+  .practice-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 900px) {
+  .app-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .app-sidebar {
+    position: static;
+    min-height: auto;
+  }
+
+  .app-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .crud-form__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .attendance-practice__summary,
+  .attendance-student {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .attendance-practice__counter {
+    justify-items: start;
+  }
+}
+
 .practice-list {
   display: grid;
   gap: 10px;

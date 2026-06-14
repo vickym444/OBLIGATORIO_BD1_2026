@@ -1,4 +1,6 @@
-from pydantic import BaseModel
+from typing import List
+
+from pydantic import BaseModel, Field
 
 
 class AsistenciaCreate(BaseModel):
@@ -14,3 +16,12 @@ class AsistenciaResponse(BaseModel):
     id_asistencia: int
     presente: int
     id_inscripcion: int
+
+
+class AsistenciaRegistro(BaseModel):
+    id_inscripcion: int
+    presente: bool = False
+
+
+class AsistenciaLoteCreate(BaseModel):
+    registros: List[AsistenciaRegistro] = Field(default_factory=list)

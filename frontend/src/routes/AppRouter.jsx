@@ -37,7 +37,14 @@ function AppRouter() {
         <Route path="actividades" element={<ActividadesPage />} />
         <Route path="practicas" element={<PracticasPage />} />
         <Route path="inscripciones" element={<InscripcionesPage />} />
-        <Route path="asistencias" element={<AsistenciasPage />} />
+        <Route
+          path="asistencias"
+          element={
+            <ProtectedRoute requiredRole="admin">
+              <AsistenciasPage />
+            </ProtectedRoute>
+          }
+        />
         <Route path="reportes" element={<ReportesPage />} />
         <Route path="usuarios" element={<UsuariosPage />} />
       </Route>

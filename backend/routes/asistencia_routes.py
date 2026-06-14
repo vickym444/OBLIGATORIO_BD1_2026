@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from core.auth_dependencies import require_admin
-from schemas.asistencia_schema import AsistenciaCreate, AsistenciaUpdate
+from schemas.asistencia_schema import AsistenciaCreate, AsistenciaUpdate, AsistenciaLoteCreate
 from services.asistencia_service import asistencia_service
 
 router = APIRouter(prefix="/asistencias", tags=["asistencias"])
@@ -9,6 +9,15 @@ router = APIRouter(prefix="/asistencias", tags=["asistencias"])
 @router.get("")
 def listar(_=Depends(require_admin)):
     return {"data": asistencia_service.listar_asistencias()}
+
+
+@router.get("/rango")
+def listar_por_rango(
+    fecha_desde: str | None = None,
+    fecha_hasta: str | None = None,
+    _=Depends(require_admin),
+):
+    return {"data": asistencia_service.listar_practicas_para_asistencia(fecha_desde, fecha_hasta)}
 
 
 @router.get("/{id_asistencia}")
@@ -37,6 +46,15 @@ def registrar(data: AsistenciaCreate, _=Depends(require_admin)):
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     return {"data": {"id_asistencia": id_nuevo}}
+
+
+@router.post("/lote")
+def registrar_lote(data: AsistenciaLoteCreate, _=Depends(require_admin)):
+    try:
+        filas = asistencia_service.guardar_asistencias_lote(data.registros)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return {"data": {"guardadas": filas}}
 
 
 @router.put("/{id_asistencia}")
