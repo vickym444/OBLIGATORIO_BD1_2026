@@ -10,6 +10,7 @@ import ActividadesPage from '../pages/ActividadesPage'
 import InscripcionesPage from '../pages/InscripcionesPage'
 import AsistenciasPage from '../pages/AsistenciasPage'
 import ReportesPage from '../pages/ReportesPage'
+import UsuariosPage from '../pages/UsuariosPage'
 
 function AppRouter() {
   return (
@@ -26,6 +27,7 @@ function AppRouter() {
         <Route path="inscripciones" element={<InscripcionesPage />} />
         <Route path="asistencias" element={<AsistenciasPage />} />
         <Route path="reportes" element={<ReportesPage />} />
+        <Route path="usuarios" element={<UsuariosPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>
