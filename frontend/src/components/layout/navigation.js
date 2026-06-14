@@ -9,6 +9,7 @@ export const navigationItems = [
   { label: 'Inscripciones', path: '/inscripciones' },
   { label: 'Asistencias', path: '/asistencias' },
   { label: 'Reportes', path: '/reportes' },
+  { label: 'Usuarios', path: '/usuarios' },
 ]
 
 export const sectionLabels = navigationItems.reduce(

@@ -16,7 +16,6 @@ from routes.inscripcion_routes import router as inscripcion_router
 from routes.asistencia_routes import router as asistencia_router
 from routes.usuario_routes import router as usuario_router
 
-
 app = FastAPI()
 
 origins = [
@@ -42,7 +41,6 @@ app.include_router(practica_router)
 app.include_router(inscripcion_router)
 app.include_router(asistencia_router)
 app.include_router(usuario_router)
-
 
 
 @app.get("/")
