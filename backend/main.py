@@ -43,8 +43,6 @@ app.include_router(asistencia_router)
 app.include_router(usuario_router)
 
 
-
-
 @app.get("/")
 def root():
     return {"message": "Backend running"}

@@ -10,6 +10,14 @@ class Carrera:
         self.nombre = nombre
         self.id_facultad = id_facultad
 
+class Usuario:
+    def __init__(self, id_usuario, username, password_hash, id_estudiante, activo):
+        self.id_usuario = id_usuario
+        self.username = username
+        self.password_hash = password_hash
+        self.id_estudiante = id_estudiante
+        self.activo = activo
+
 class Estudiante:
     def __init__(self, id_estudiante, documento, nombre, apellido, email, id_carrera, activo):
         self.id_estudiante = id_estudiante
