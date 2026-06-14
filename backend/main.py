@@ -15,6 +15,7 @@ from routes.practica_routes import router as practica_router
 from routes.inscripcion_routes import router as inscripcion_router
 from routes.asistencia_routes import router as asistencia_router
 from routes.usuario_routes import router as usuario_router
+from routes.auth_routes import router as auth_router
 
 app = FastAPI()
 
@@ -41,6 +42,7 @@ app.include_router(practica_router)
 app.include_router(inscripcion_router)
 app.include_router(asistencia_router)
 app.include_router(usuario_router)
+app.include_router(auth_router)
 
 
 @app.get("/")

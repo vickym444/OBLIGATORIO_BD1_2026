@@ -1,8 +1,6 @@
 from repositories.usuario_repository import UsuarioRepository
 from repositories.estudiante_repository import EstudianteRepository
-from passlib.context import CryptContext
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+from core.auth_security import get_password_hash
 
 
 class UsuarioService:
@@ -11,7 +9,7 @@ class UsuarioService:
         self.estudiante_repository = EstudianteRepository()
 
     def _hashear_password(self, password):
-        return pwd_context.hash(password)
+        return get_password_hash(password)
 
     def _validar_rol_estudiante(self, rol, id_estudiante):
         if rol == 'admin' and id_estudiante is not None:

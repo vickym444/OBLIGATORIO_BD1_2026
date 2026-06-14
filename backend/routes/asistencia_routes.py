@@ -1,4 +1,5 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
+from core.auth_dependencies import require_admin
 from schemas.asistencia_schema import AsistenciaCreate, AsistenciaUpdate
 from services.asistencia_service import asistencia_service
 
@@ -6,12 +7,12 @@ router = APIRouter(prefix="/asistencias", tags=["asistencias"])
 
 
 @router.get("")
-def listar():
+def listar(_=Depends(require_admin)):
     return {"data": asistencia_service.listar_asistencias()}
 
 
 @router.get("/{id_asistencia}")
-def obtener(id_asistencia: int):
+def obtener(id_asistencia: int, _=Depends(require_admin)):
     asistencia = asistencia_service.obtener_asistencia(id_asistencia)
     if not asistencia:
         raise HTTPException(status_code=404, detail="Asistencia no encontrada")
@@ -19,7 +20,7 @@ def obtener(id_asistencia: int):
 
 
 @router.get("/inscripcion/{id_inscripcion}")
-def obtener_por_inscripcion(id_inscripcion: int):
+def obtener_por_inscripcion(id_inscripcion: int, _=Depends(require_admin)):
     asistencia = asistencia_service.obtener_por_inscripcion(id_inscripcion)
     if not asistencia:
         raise HTTPException(status_code=404, detail="Asistencia no encontrada")
@@ -27,7 +28,7 @@ def obtener_por_inscripcion(id_inscripcion: int):
 
 
 @router.post("")
-def registrar(data: AsistenciaCreate):
+def registrar(data: AsistenciaCreate, _=Depends(require_admin)):
     try:
         id_nuevo = asistencia_service.registrar_asistencia(
             data.presente,
@@ -39,7 +40,7 @@ def registrar(data: AsistenciaCreate):
 
 
 @router.put("/{id_asistencia}")
-def actualizar(id_asistencia: int, data: AsistenciaUpdate):
+def actualizar(id_asistencia: int, data: AsistenciaUpdate, _=Depends(require_admin)):
     try:
         filas = asistencia_service.actualizar_asistencia(id_asistencia, data.presente)
     except ValueError as exc:

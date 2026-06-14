@@ -50,9 +50,19 @@ CREATE TABLE IF NOT EXISTS `bd1_2026`.`usuario` (
     `email` VARCHAR(100) NOT NULL,
     `password_hash` VARCHAR(255) NOT NULL,
     `rol` ENUM('admin', 'estudiante') NOT NULL DEFAULT'estudiante',
+  `id_estudiante` INT NULL,
     `activo` TINYINT NOT NULL DEFAULT 1,
     PRIMARY KEY (`id_usuario`),
-    UNIQUE INDEX `emil_UNIQUE` (`email` ASC) VISIBLE)
+  UNIQUE INDEX `emil_UNIQUE` (`email` ASC) VISIBLE,
+  INDEX `fk_usuario_estudiante_idx` (`id_estudiante` ASC) VISIBLE,
+  CONSTRAINT `fk_usuario_estudiante`
+    FOREIGN KEY (`id_estudiante`)
+    REFERENCES `bd1_2026`.`estudiante` (`id_estudiante`),
+  CONSTRAINT `chk_admin_sin_estudiante`
+    CHECK (
+      (rol = 'admin' AND id_estudiante IS NULL) OR
+      (rol = 'estudiante' AND id_estudiante IS NOT NULL)
+      ))
 ENGINE = InnoDB;
 
 
@@ -194,29 +204,6 @@ CREATE TABLE IF NOT EXISTS `bd1_2026`.`asistencia` (
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
--- ----------------
---  mod usuario
--- ----------------
-
-ALTER TABLE `bd1_2026`.`usuario`
-    DROP COLUMN `email`,
-    ADD COLUMN `username` VARCHAR(100) NOT NULL AFTER `id_usuario`,
-    ADD COLUMN `id_estudiante` INT NULL AFTER `password_hash`,
-    ADD UNIQUE INDEX `username_UNIQUE` (`username` ASC),
-    ADD CONSTRAINT `fk_usuario_estudiante`
-        FOREIGN KEY (`id_estudiante`)
-        REFERENCES `bd1_2026`.`estudiante` (`id_estudiante`);
-
-ALTER TABLE `bd1_2026`.`usuario`
-    ADD CONSTRAINT `chk_admin_sin_estudiante`
-        CHECK (
-            (rol = 'admin' AND id_estudiante IS NULL) OR
-            (rol = 'estudiante' AND id_estudiante IS NOT NULL)
-            );
-
--- -----------------------------------------------------
--- Para que no importe el orden en que creo las tablas
--- -----------------------------------------------------
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;

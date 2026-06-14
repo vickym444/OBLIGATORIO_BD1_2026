@@ -1,4 +1,5 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
+from core.auth_dependencies import require_admin
 from schemas.espacio_schema import EspacioCreate, EspacioUpdate
 from services.espacio_service import espacio_service
 
@@ -6,12 +7,12 @@ router = APIRouter(prefix="/espacios", tags=["espacios"])
 
 
 @router.get("")
-def listar():
+def listar(_=Depends(require_admin)):
     return {"data": espacio_service.listar_espacios()}
 
 
 @router.get("/{id_espacio}")
-def obtener(id_espacio: int):
+def obtener(id_espacio: int, _=Depends(require_admin)):
     espacio = espacio_service.obtener_espacio(id_espacio)
     if not espacio:
         raise HTTPException(status_code=404, detail="Espacio no encontrado")
@@ -19,7 +20,7 @@ def obtener(id_espacio: int):
 
 
 @router.post("")
-def crear(data: EspacioCreate):
+def crear(data: EspacioCreate, _=Depends(require_admin)):
     try:
         id_nuevo = espacio_service.crear_espacio(data.nombre, data.descripcion)
     except ValueError as exc:
@@ -29,7 +30,7 @@ def crear(data: EspacioCreate):
 
 
 @router.put("/{id_espacio}")
-def actualizar(id_espacio: int, data: EspacioUpdate):
+def actualizar(id_espacio: int, data: EspacioUpdate, _=Depends(require_admin)):
     filas = espacio_service.actualizar_espacio(
         id_espacio, data.nombre, data.descripcion, data.activo
     )
@@ -39,7 +40,7 @@ def actualizar(id_espacio: int, data: EspacioUpdate):
 
 
 @router.delete("/{id_espacio}")
-def eliminar(id_espacio: int):
+def eliminar(id_espacio: int, _=Depends(require_admin)):
     filas = espacio_service.eliminar_espacio(id_espacio)
     if not filas:
         raise HTTPException(status_code=404, detail="Espacio no encontrado")

@@ -1,4 +1,5 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
+from core.auth_dependencies import require_admin
 from schemas.usuario_schema import UsuarioCreate, UsuarioUpdate
 from services.usuario_service import usuario_service as service
 
@@ -6,12 +7,12 @@ router = APIRouter(prefix="/usuarios", tags=["usuarios"])
 
 
 @router.get("")
-def listar():
+def listar(_=Depends(require_admin)):
     return {"data": service.listar_usuarios()}
 
 
 @router.get("/{id_usuario}")
-def obtener(id_usuario: int):
+def obtener(id_usuario: int, _=Depends(require_admin)):
     usuario = service.obtener_usuario(id_usuario)
     if not usuario:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
@@ -19,7 +20,7 @@ def obtener(id_usuario: int):
 
 
 @router.post("")
-def crear(data: UsuarioCreate):
+def crear(data: UsuarioCreate, _=Depends(require_admin)):
     try:
         id_nuevo = service.crear_usuario(
             data.username,
@@ -33,7 +34,7 @@ def crear(data: UsuarioCreate):
 
 
 @router.put("/{id_usuario}")
-def actualizar(id_usuario: int, data: UsuarioUpdate):
+def actualizar(id_usuario: int, data: UsuarioUpdate, _=Depends(require_admin)):
     try:
         filas = service.actualizar_usuario(
             id_usuario,
@@ -51,7 +52,7 @@ def actualizar(id_usuario: int, data: UsuarioUpdate):
 
 
 @router.delete("/{id_usuario}")
-def eliminar(id_usuario: int):
+def eliminar(id_usuario: int, _=Depends(require_admin)):
     filas = service.eliminar_usuario(id_usuario)
     if not filas:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")

@@ -1,5 +1,6 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from datetime import date
+from core.auth_dependencies import get_current_user, require_admin
 from schemas.practica_schema import PracticaCreate, PracticaUpdate
 from services.practica_service import practica_service
 
@@ -7,22 +8,22 @@ router = APIRouter(prefix="/practicas", tags=["practicas"])
 
 
 @router.get("")
-def listar():
+def listar(_=Depends(get_current_user)):
     return {"data": practica_service.listar_practicas()}
 
 
 @router.get("/actividad/{id_actividad}")
-def listar_por_actividad(id_actividad: int):
+def listar_por_actividad(id_actividad: int, _=Depends(get_current_user)):
     return {"data": practica_service.listar_practicas_por_actividad(id_actividad)}
 
 
 @router.get("/fecha/{fecha}")
-def listar_por_fecha(fecha: date):
+def listar_por_fecha(fecha: date, _=Depends(get_current_user)):
     return {"data": practica_service.listar_practicas_por_fecha(fecha)}
 
 
 @router.get("/rango")
-def listar_por_rango(fecha_desde: date, fecha_hasta: date):
+def listar_por_rango(fecha_desde: date, fecha_hasta: date, _=Depends(get_current_user)):
     try:
         practicas = practica_service.listar_practicas_por_rango_fechas(fecha_desde, fecha_hasta)
     except ValueError as exc:
@@ -31,7 +32,12 @@ def listar_por_rango(fecha_desde: date, fecha_hasta: date):
 
 
 @router.post("/generar/{id_actividad}")
-def generar(id_actividad: int, fecha_desde: date | None = None, fecha_hasta: date | None = None):
+def generar(
+    id_actividad: int,
+    fecha_desde: date | None = None,
+    fecha_hasta: date | None = None,
+    _=Depends(require_admin),
+):
     try:
         resultado = practica_service.generar_practicas_automaticas(
             id_actividad=id_actividad,
@@ -44,7 +50,7 @@ def generar(id_actividad: int, fecha_desde: date | None = None, fecha_hasta: dat
 
 
 @router.get("/{id_practica}")
-def obtener(id_practica: int):
+def obtener(id_practica: int, _=Depends(get_current_user)):
     practica = practica_service.obtener_practica(id_practica)
     if not practica:
         raise HTTPException(status_code=404, detail="Practica no encontrada")
@@ -52,7 +58,7 @@ def obtener(id_practica: int):
 
 
 @router.post("")
-def crear(data: PracticaCreate):
+def crear(data: PracticaCreate, _=Depends(require_admin)):
     try:
         id_nuevo = practica_service.crear_practica(
             data.id_actividad,
@@ -64,7 +70,7 @@ def crear(data: PracticaCreate):
 
 
 @router.put("/{id_practica}")
-def actualizar(id_practica: int, data: PracticaUpdate):
+def actualizar(id_practica: int, data: PracticaUpdate, _=Depends(require_admin)):
     try:
         filas = practica_service.actualizar_practica(
             id_practica,
@@ -80,7 +86,7 @@ def actualizar(id_practica: int, data: PracticaUpdate):
 
 
 @router.delete("/{id_practica}")
-def eliminar(id_practica: int):
+def eliminar(id_practica: int, _=Depends(require_admin)):
     filas = practica_service.eliminar_practica(id_practica)
     if not filas:
         raise HTTPException(status_code=404, detail="Practica no encontrada")

@@ -50,6 +50,22 @@ class UsuarioRepository:
         finally:
             connection.close()
 
+    def get_usuario_auth_by_username(self, username):
+        connection = get_connection()
+        try:
+            cursor = connection.cursor(dictionary=True)
+            cursor.execute(
+                """
+                SELECT id_usuario, username, password_hash, rol, id_estudiante, activo
+                FROM usuario
+                WHERE username = %s
+                """,
+                (username,)
+            )
+            return cursor.fetchone()
+        finally:
+            connection.close()
+
     def create_usuario(self, username, password_hash, rol, id_estudiante, activo=1):
         connection = get_connection()
         try:
