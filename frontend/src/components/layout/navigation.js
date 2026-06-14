@@ -6,6 +6,7 @@ export const navigationItems = [
   { label: 'Disciplinas', path: '/disciplinas' },
   { label: 'Espacios', path: '/espacios' },
   { label: 'Actividades', path: '/actividades' },
+  { label: 'Prácticas', path: '/practicas' },
   { label: 'Inscripciones', path: '/inscripciones' },
   { label: 'Asistencias', path: '/asistencias' },
   { label: 'Reportes', path: '/reportes' },
