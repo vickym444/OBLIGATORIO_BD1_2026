@@ -47,6 +47,29 @@ function formatActividadErrorMessage(message) {
   return message || 'No se pudo guardar la actividad'
 }
 
+function formatHora24(hora) {
+  if (hora === null || hora === undefined || hora === '') {
+    return '--:--'
+  }
+
+  if (typeof hora === 'number') {
+    const totalSeconds = Math.max(0, Math.floor(hora))
+    const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, '0')
+    const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0')
+    return `${hours}:${minutes}`
+  }
+
+  const text = String(hora)
+  const match = text.match(/^(\d{1,2}):(\d{2})/)
+  if (!match) {
+    return text
+  }
+
+  const hours = match[1].padStart(2, '0')
+  const minutes = match[2]
+  return `${hours}:${minutes}`
+}
+
 function ActividadesPage() {
   const [actividades, setActividades] = useState([])
   const [disciplinas, setDisciplinas] = useState([])
@@ -383,7 +406,7 @@ function ActividadesPage() {
                       Cupos {actividad.cupo_minimo} - {actividad.cupo_maximo}
                     </span>
                     <span>
-                      {actividad.hora_inicio} - {actividad.hora_fin}
+                      {formatHora24(actividad.hora_inicio)} - {formatHora24(actividad.hora_fin)}
                     </span>
                     <span>{getDisciplinaNombre(actividad.id_disciplina)}</span>
                     <span>{getEspacioNombre(actividad.id_espacio)}</span>
