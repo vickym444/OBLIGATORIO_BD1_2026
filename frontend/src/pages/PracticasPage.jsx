@@ -16,6 +16,29 @@ const today = new Date()
 const initialDate = today.toISOString().slice(0, 10)
 const initialDateTo = initialDate
 
+function formatHour(value) {
+  if (value === null || value === undefined || value === '') {
+    return ''
+  }
+
+  if (typeof value === 'number') {
+    const totalSeconds = Math.max(0, Math.floor(value))
+    const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, '0')
+    const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0')
+    return `${hours}:${minutes}`
+  }
+
+  const text = String(value)
+  const match = text.match(/^(\d{1,2}):(\d{2})/)
+  if (match) {
+    const hours = match[1].padStart(2, '0')
+    const minutes = match[2]
+    return `${hours}:${minutes}`
+  }
+
+  return text
+}
+
 function PracticasPage() {
   const { user, hasRole, isAuthenticated, isLoading: isAuthLoading } = useAuth()
   const isAdmin = hasRole('admin')
@@ -36,6 +59,14 @@ function PracticasPage() {
   const [ordenarPorcentaje, setOrdenarPorcentaje] = useState(false)
   const [soloCuposDisponibles, setSoloCuposDisponibles] = useState(false)
 
+  function getErrorMessage(requestError, fallbackMessage) {
+    const message = requestError?.message || ''
+    if (message.includes('No tienes permisos para esta operación')) {
+      return fallbackMessage
+    }
+    return message || fallbackMessage
+  }
+
   useEffect(() => {
     if (isAuthLoading) {
       return undefined
@@ -49,7 +80,7 @@ function PracticasPage() {
         setError('')
 
         const [actividadesResponse, inscripcionesResponse] = await Promise.all([
-          listarActividades(),
+          isAdmin ? listarActividades() : Promise.resolve({ data: [] }),
           isAuthenticated && hasRole('estudiante') ? listarMisInscripciones() : Promise.resolve({ data: [] }),
         ])
 
@@ -59,7 +90,7 @@ function PracticasPage() {
         }
       } catch (requestError) {
         if (isMounted) {
-          setError(requestError.message || 'No se pudieron cargar las prácticas')
+          setError(getErrorMessage(requestError, 'No se pudieron cargar las prácticas'))
         }
       } finally {
         if (isMounted) {
@@ -126,7 +157,7 @@ function PracticasPage() {
 
       await cargarPracticasActuales()
     } catch (requestError) {
-      setError(requestError.message || 'No se pudieron consultar las prácticas')
+      setError(getErrorMessage(requestError, 'No se pudieron consultar las prácticas'))
     } finally {
       setIsSearching(false)
     }
@@ -148,7 +179,7 @@ function PracticasPage() {
         setPracticas(response?.data ?? [])
       })()
     } catch (requestError) {
-      setError(requestError.message || 'No se pudieron reordenar las prácticas')
+      setError(getErrorMessage(requestError, 'No se pudieron reordenar las prácticas'))
     } finally {
       setIsSearching(false)
     }
@@ -170,7 +201,7 @@ function PracticasPage() {
         setPracticas(response?.data ?? [])
       })()
     } catch (requestError) {
-      setError(requestError.message || 'No se pudieron filtrar las prácticas')
+      setError(getErrorMessage(requestError, 'No se pudieron filtrar las prácticas'))
     } finally {
       setIsSearching(false)
     }
@@ -201,7 +232,7 @@ function PracticasPage() {
         setPracticas(response?.data ?? [])
       }
     } catch (requestError) {
-      setError(requestError.message || 'No se pudieron generar las prácticas')
+      setError(getErrorMessage(requestError, 'No se pudieron generar las prácticas'))
     } finally {
       setIsGenerating(false)
     }
@@ -218,7 +249,7 @@ function PracticasPage() {
       return ''
     }
 
-    return `${actividad.dia} · ${actividad.hora_inicio} a ${actividad.hora_fin}`
+    return `${actividad.dia} · ${formatHour(actividad.hora_inicio)} a ${formatHour(actividad.hora_fin)}`
   }
 
   function getEstadoInscripcion(idPractica) {
@@ -243,7 +274,7 @@ function PracticasPage() {
       setMisInscripciones(inscripcionesResponse?.data ?? [])
       setSuccessMessage(estadoNuevo)
     } catch (requestError) {
-      setError(requestError.message || 'No se pudo completar la inscripción')
+      setError(getErrorMessage(requestError, 'No se pudo completar la inscripción'))
     } finally {
       setInscribiendoId(null)
     }
@@ -277,19 +308,21 @@ function PracticasPage() {
                 type="date"
               />
 
-              <CrudField
-                label="Actividad para generar"
-                name="actividadId"
-                value={actividadId}
-                onChange={(event) => setActividadId(event.target.value)}
-                as="select"
-                placeholder="Seleccionar actividad"
-                options={actividades.map((actividad) => ({
-                  value: actividad.id_actividad,
-                  label: actividad.nombre,
-                }))}
-                className="crud-field--full"
-              />
+              {isAdmin ? (
+                <CrudField
+                  label="Actividad para generar"
+                  name="actividadId"
+                  value={actividadId}
+                  onChange={(event) => setActividadId(event.target.value)}
+                  as="select"
+                  placeholder="Seleccionar actividad"
+                  options={actividades.map((actividad) => ({
+                    value: actividad.id_actividad,
+                    label: actividad.nombre,
+                  }))}
+                  className="crud-field--full"
+                />
+              ) : null}
 
               {isAdmin ? (
                 <>
@@ -319,17 +352,21 @@ function PracticasPage() {
                 {isSearching ? 'Consultando...' : 'Consultar prácticas'}
               </button>
 
-              <button type="button" onClick={handleGenerarPracticas} disabled={isGenerating || isLoading}>
-                {isGenerating ? 'Generando...' : 'Generar prácticas'}
-              </button>
+              {isAdmin ? (
+                <button type="button" onClick={handleGenerarPracticas} disabled={isGenerating || isLoading}>
+                  {isGenerating ? 'Generando...' : 'Generar prácticas'}
+                </button>
+              ) : null}
             </div>
           </form>
 
           {error ? <p className="crud-message crud-message--error">{error}</p> : null}
           {successMessage ? <p className="crud-message crud-message--success">{successMessage}</p> : null}
-          <p className="practice-helper">
-            La consulta muestra solo prácticas activas. La generación usa la actividad seleccionada como base.
-          </p>
+          {isAdmin ? (
+            <p className="practice-helper">
+              La consulta muestra solo prácticas activas. La generación usa la actividad seleccionada como base.
+            </p>
+          ) : null}
         </CrudCard>
 
         <CrudCard title={consultaActiva ? `Resultado: ${consultaActiva}` : 'Listado de prácticas'}>
