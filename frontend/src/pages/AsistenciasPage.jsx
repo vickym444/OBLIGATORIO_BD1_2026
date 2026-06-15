@@ -2,7 +2,12 @@ import { useEffect, useMemo, useState } from 'react'
 import PageShell from '../components/layout/PageShell'
 import CrudCard from '../components/crud/CrudCard'
 import CrudField from '../components/crud/CrudField'
+import PaginationControls from '../components/common/PaginationControls'
 import { listarPracticasParaAsistencia, guardarAsistenciasLote } from '../services/asistenciaService'
+
+const ITEMS_PER_PAGE = 10
+const INITIAL_FECHA_DESDE = new Date().toISOString().slice(0, 10)
+const INITIAL_FECHA_HASTA = getTodayPlusDays(7)
 
 function getTodayPlusDays(days) {
   const now = new Date()
@@ -48,8 +53,9 @@ function AsistenciasPage() {
   const [error, setError] = useState('')
   const [successMessage, setSuccessMessage] = useState('')
   const [consultaActiva, setConsultaActiva] = useState('')
-  const [fechaDesde, setFechaDesde] = useState(new Date().toISOString().slice(0, 10))
-  const [fechaHasta, setFechaHasta] = useState(getTodayPlusDays(7))
+  const [fechaDesde, setFechaDesde] = useState(INITIAL_FECHA_DESDE)
+  const [fechaHasta, setFechaHasta] = useState(INITIAL_FECHA_HASTA)
+  const [paginaActual, setPaginaActual] = useState(1)
 
   async function cargarPracticas(desde, hasta) {
     const response = await listarPracticasParaAsistencia(desde, hasta)
@@ -68,12 +74,12 @@ function AsistenciasPage() {
         setIsLoading(true)
         setError('')
 
-        const response = await listarPracticasParaAsistencia(fechaDesde, fechaHasta)
+        const response = await listarPracticasParaAsistencia(INITIAL_FECHA_DESDE, INITIAL_FECHA_HASTA)
         if (mounted) {
           const practicasRespuesta = response?.data ?? []
           setPracticas(practicasRespuesta)
           setAsistencias(buildAsistenciaMap(practicasRespuesta))
-          setConsultaActiva(`Rango ${fechaDesde} a ${fechaHasta}`)
+          setConsultaActiva(`Rango ${INITIAL_FECHA_DESDE} a ${INITIAL_FECHA_HASTA}`)
         }
       } catch (requestError) {
         if (mounted) {
@@ -109,6 +115,18 @@ function AsistenciasPage() {
       practicas: practicasGrupo,
     }))
   }, [practicas])
+
+  const totalPaginas = useMemo(
+    () => Math.max(1, Math.ceil(practicasAgrupadas.length / ITEMS_PER_PAGE)),
+    [practicasAgrupadas],
+  )
+
+  const paginaActualSegura = Math.min(paginaActual, totalPaginas)
+
+  const gruposPaginados = useMemo(() => {
+    const start = (paginaActualSegura - 1) * ITEMS_PER_PAGE
+    return practicasAgrupadas.slice(start, start + ITEMS_PER_PAGE)
+  }, [practicasAgrupadas, paginaActualSegura])
 
   async function handleConsultar(event) {
     event.preventDefault()
@@ -206,7 +224,7 @@ function AsistenciasPage() {
             {consultaActiva ? <p className="attendance-summary">{consultaActiva}</p> : null}
 
             <div className="attendance-groups">
-              {practicasAgrupadas.map(({ fecha, practicas: practicasGrupo }) => (
+              {gruposPaginados.map(({ fecha, practicas: practicasGrupo }) => (
                 <section className="attendance-group" key={fecha}>
                   <header className="attendance-group__header">
                     <h3>{fecha}</h3>
@@ -271,6 +289,16 @@ function AsistenciasPage() {
                 </section>
               ))}
             </div>
+
+            {practicasAgrupadas.length > ITEMS_PER_PAGE ? (
+              <PaginationControls
+                currentPage={paginaActualSegura}
+                totalPages={totalPaginas}
+                onPageChange={setPaginaActual}
+                itemLabel="grupos de asistencias"
+                totalItems={practicasAgrupadas.length}
+              />
+            ) : null}
 
             <div className="crud-form__actions attendance-actions">
               <button type="submit" disabled={isSaving}>

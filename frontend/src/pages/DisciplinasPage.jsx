@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import PageShell from '../components/layout/PageShell'
+import PaginationControls from '../components/common/PaginationControls'
 import {
   actualizarDisciplina,
   crearDisciplina,
@@ -12,6 +13,8 @@ const initialForm = {
   descripcion: '',
 }
 
+const ITEMS_PER_PAGE = 10
+
 function DisciplinasPage() {
   const [disciplinas, setDisciplinas] = useState([])
   const [isLoading, setIsLoading] = useState(true)
@@ -19,6 +22,7 @@ function DisciplinasPage() {
   const [error, setError] = useState('')
   const [formValues, setFormValues] = useState(initialForm)
   const [editingId, setEditingId] = useState(null)
+  const [paginaActual, setPaginaActual] = useState(1)
 
   useEffect(() => {
     let isMounted = true
@@ -142,6 +146,18 @@ function DisciplinasPage() {
     return disciplina.descripcion?.trim() || 'Sin descripción'
   }
 
+  const totalPaginas = useMemo(
+    () => Math.max(1, Math.ceil(disciplinas.length / ITEMS_PER_PAGE)),
+    [disciplinas],
+  )
+
+  const paginaActualSegura = Math.min(paginaActual, totalPaginas)
+
+  const disciplinasPaginadas = useMemo(() => {
+    const start = (paginaActualSegura - 1) * ITEMS_PER_PAGE
+    return disciplinas.slice(start, start + ITEMS_PER_PAGE)
+  }, [disciplinas, paginaActualSegura])
+
   return (
     <PageShell
       eyebrow="Catálogo"
@@ -202,7 +218,7 @@ function DisciplinasPage() {
 
           {!isLoading && disciplinas.length > 0 ? (
             <ul className="faculty-list">
-              {disciplinas.map((disciplina) => (
+              {disciplinasPaginadas.map((disciplina) => (
                 <li key={disciplina.id_disciplina} className="faculty-list__item">
                   <div>
                     <strong>{disciplina.nombre}</strong>
@@ -221,6 +237,16 @@ function DisciplinasPage() {
                 </li>
               ))}
             </ul>
+          ) : null}
+
+          {!isLoading && disciplinas.length > ITEMS_PER_PAGE ? (
+            <PaginationControls
+              currentPage={paginaActualSegura}
+              totalPages={totalPaginas}
+              onPageChange={setPaginaActual}
+              itemLabel="disciplinas"
+              totalItems={disciplinas.length}
+            />
           ) : null}
         </div>
       </section>

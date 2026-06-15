@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import PageShell from '../components/layout/PageShell'
 import CrudCard from '../components/crud/CrudCard'
 import CrudField from '../components/crud/CrudField'
+import PaginationControls from '../components/common/PaginationControls'
 import { listarEstudiantes } from '../services/estudianteService'
 import {
   actualizarUsuario,
@@ -17,6 +18,8 @@ const initialForm = {
   id_estudiante: '',
 }
 
+const ITEMS_PER_PAGE = 10
+
 function UsuariosPage() {
   const [usuarios, setUsuarios] = useState([])
   const [estudiantes, setEstudiantes] = useState([])
@@ -25,6 +28,7 @@ function UsuariosPage() {
   const [error, setError] = useState('')
   const [formValues, setFormValues] = useState(initialForm)
   const [editingId, setEditingId] = useState(null)
+  const [paginaActual, setPaginaActual] = useState(1)
 
   useEffect(() => {
     let isMounted = true
@@ -164,6 +168,18 @@ function UsuariosPage() {
     return estudiante ? `${estudiante.nombre} ${estudiante.apellido}` : '-'
   }
 
+  const totalPaginas = useMemo(
+    () => Math.max(1, Math.ceil(usuarios.length / ITEMS_PER_PAGE)),
+    [usuarios],
+  )
+
+  const paginaActualSegura = Math.min(paginaActual, totalPaginas)
+
+  const usuariosPaginados = useMemo(() => {
+    const start = (paginaActualSegura - 1) * ITEMS_PER_PAGE
+    return usuarios.slice(start, start + ITEMS_PER_PAGE)
+  }, [usuarios, paginaActualSegura])
+
   return (
     <PageShell
       eyebrow="Catálogo"
@@ -245,7 +261,7 @@ function UsuariosPage() {
 
           {!isLoading && usuarios.length > 0 ? (
             <ul className="crud-list">
-              {usuarios.map((usuario) => (
+              {usuariosPaginados.map((usuario) => (
                 <li key={usuario.id_usuario} className="crud-list__item">
                   <div>
                     <strong>{usuario.username}</strong>
@@ -269,6 +285,16 @@ function UsuariosPage() {
                 </li>
               ))}
             </ul>
+          ) : null}
+
+          {!isLoading && usuarios.length > ITEMS_PER_PAGE ? (
+            <PaginationControls
+              currentPage={paginaActualSegura}
+              totalPages={totalPaginas}
+              onPageChange={setPaginaActual}
+              itemLabel="usuarios"
+              totalItems={usuarios.length}
+            />
           ) : null}
         </CrudCard>
       </section>

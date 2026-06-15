@@ -69,11 +69,6 @@ INSERT INTO `espacio` (`nombre`, `descripcion`, `activo`) VALUES
 -- 5) ESTUDIANTES (100) + USUARIOS ESTUDIANTE (100)
 --    Distribucion: id_carrera = ((n-1) % 15) + 1
 -- -----------------------------------------------------
-WITH RECURSIVE seq_100 AS (
-	SELECT 1 AS n
-	UNION ALL
-	SELECT n + 1 FROM seq_100 WHERE n < 100
-)
 INSERT INTO `estudiante` (`documento`, `nombre`, `apellido`, `email`, `activo`, `id_carrera`)
 SELECT
 	CONCAT('DOC', LPAD(n, 6, '0')) AS documento,
@@ -82,7 +77,19 @@ SELECT
 	CONCAT('estudiante', LPAD(n, 3, '0'), '@bd1.uy') AS email,
 	1 AS activo,
 	((n - 1) % 15) + 1 AS id_carrera
-FROM seq_100;
+FROM (
+	SELECT (u.n + t.n * 10) + 1 AS n
+	FROM (
+		SELECT 0 AS n UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4
+		UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9
+	) u
+	CROSS JOIN (
+		SELECT 0 AS n UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4
+		UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9
+	) t
+) seq_100
+WHERE n <= 100
+ORDER BY n;
 
 -- Password para estudiantes: alumno123
 -- Hash bcrypt (mismo usado en inserts_pruebas.sql)

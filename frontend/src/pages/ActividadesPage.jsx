@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import PageShell from '../components/layout/PageShell'
 import CrudCard from '../components/crud/CrudCard'
 import CrudField from '../components/crud/CrudField'
+import PaginationControls from '../components/common/PaginationControls'
 import { listarDisciplinas } from '../services/disciplinaService'
 import { listarEspacios } from '../services/espacioService'
 import {
@@ -38,6 +39,8 @@ const estadoOptions = ['abierta', 'cerrada', 'finalizada', 'cancelada'].map((val
   value,
   label: value,
 }))
+
+const ITEMS_PER_PAGE = 10
 
 function formatActividadErrorMessage(message) {
   if (message && /superpone|superposición|horario/i.test(message)) {
@@ -79,6 +82,7 @@ function ActividadesPage() {
   const [error, setError] = useState('')
   const [formValues, setFormValues] = useState(initialForm)
   const [editingId, setEditingId] = useState(null)
+  const [paginaActual, setPaginaActual] = useState(1)
 
   useEffect(() => {
     let isMounted = true
@@ -270,6 +274,18 @@ function ActividadesPage() {
     return espacio?.nombre ?? `Espacio ${idEspacio}`
   }
 
+  const totalPaginas = useMemo(
+    () => Math.max(1, Math.ceil(actividades.length / ITEMS_PER_PAGE)),
+    [actividades],
+  )
+
+  const paginaActualSegura = Math.min(paginaActual, totalPaginas)
+
+  const actividadesPaginadas = useMemo(() => {
+    const start = (paginaActualSegura - 1) * ITEMS_PER_PAGE
+    return actividades.slice(start, start + ITEMS_PER_PAGE)
+  }, [actividades, paginaActualSegura])
+
   return (
     <PageShell
       eyebrow="Operación"
@@ -395,7 +411,7 @@ function ActividadesPage() {
 
           {!isLoading && actividades.length > 0 ? (
             <ul className="crud-list">
-              {actividades.map((actividad) => (
+              {actividadesPaginadas.map((actividad) => (
                 <li key={actividad.id_actividad} className="crud-list__item">
                   <div>
                     <strong>{actividad.nombre}</strong>
@@ -423,6 +439,16 @@ function ActividadesPage() {
                 </li>
               ))}
             </ul>
+          ) : null}
+
+          {!isLoading && actividades.length > ITEMS_PER_PAGE ? (
+            <PaginationControls
+              currentPage={paginaActualSegura}
+              totalPages={totalPaginas}
+              onPageChange={setPaginaActual}
+              itemLabel="actividades"
+              totalItems={actividades.length}
+            />
           ) : null}
         </CrudCard>
       </section>

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import PageShell from '../components/layout/PageShell'
 import CrudCard from '../components/crud/CrudCard'
 import CrudField from '../components/crud/CrudField'
+import PaginationControls from '../components/common/PaginationControls'
 import { useAuth } from '../contexts/AuthContext'
 import { cancelarInscripcion, listarInscripcionesAdmin, listarMisInscripciones } from '../services/inscripcionService'
 import { listarFacultades } from '../services/facultadService'
@@ -25,8 +26,10 @@ function formatTime(value) {
   return `${hours}:${minutes}`
 }
 
+const ITEMS_PER_PAGE = 10
+
 function InscripcionesPage() {
-  const { user, hasRole } = useAuth()
+  const { hasRole } = useAuth()
   const isAdmin = hasRole('admin')
   const isStudent = hasRole('estudiante')
 
@@ -46,6 +49,7 @@ function InscripcionesPage() {
   const [filtroCarrera, setFiltroCarrera] = useState('')
   const [filtroActividad, setFiltroActividad] = useState('')
   const [filtroDisciplina, setFiltroDisciplina] = useState('')
+  const [paginaActual, setPaginaActual] = useState(1)
 
   useEffect(() => {
     let mounted = true
@@ -119,6 +123,18 @@ function InscripcionesPage() {
   const carrerasPorFacultad = useMemo(() => {
     return carreras.filter((carrera) => !filtroFacultad || String(carrera.id_facultad) === filtroFacultad)
   }, [carreras, filtroFacultad])
+
+  const totalPaginas = useMemo(
+    () => Math.max(1, Math.ceil(inscripciones.length / ITEMS_PER_PAGE)),
+    [inscripciones],
+  )
+
+  const paginaActualSegura = Math.min(paginaActual, totalPaginas)
+
+  const inscripcionesPaginadas = useMemo(() => {
+    const start = (paginaActualSegura - 1) * ITEMS_PER_PAGE
+    return inscripciones.slice(start, start + ITEMS_PER_PAGE)
+  }, [inscripciones, paginaActualSegura])
 
   async function recargarAdmin(nuevoDesde = fechaDesde, nuevoHasta = fechaHasta) {
     const response = await listarInscripcionesAdmin({
@@ -266,7 +282,7 @@ function InscripcionesPage() {
                 </tr>
               </thead>
               <tbody>
-                {inscripciones.map((inscripcion) => (
+                {inscripcionesPaginadas.map((inscripcion) => (
                   <tr key={inscripcion.id_inscripcion}>
                     {isAdmin ? <td>{`${inscripcion.estudiante_nombre ?? ''} ${inscripcion.estudiante_apellido ?? ''}`.trim()}</td> : null}
                     {isAdmin ? <td>{inscripcion.ci}</td> : null}
@@ -292,6 +308,16 @@ function InscripcionesPage() {
               </tbody>
             </table>
           </div>
+        ) : null}
+
+        {!isLoading && inscripciones.length > ITEMS_PER_PAGE ? (
+          <PaginationControls
+            currentPage={paginaActualSegura}
+            totalPages={totalPaginas}
+            onPageChange={setPaginaActual}
+            itemLabel="inscripciones"
+            totalItems={inscripciones.length}
+          />
         ) : null}
       </CrudCard>
     </PageShell>

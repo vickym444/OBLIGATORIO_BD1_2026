@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import PageShell from '../components/layout/PageShell'
+import PaginationControls from '../components/common/PaginationControls'
 import {
   actualizarFacultad,
   crearFacultad,
@@ -11,6 +12,8 @@ const initialForm = {
   nombre: '',
 }
 
+const ITEMS_PER_PAGE = 10
+
 function FacultadesPage() {
   const [facultades, setFacultades] = useState([])
   const [isLoading, setIsLoading] = useState(true)
@@ -18,6 +21,7 @@ function FacultadesPage() {
   const [error, setError] = useState('')
   const [formValues, setFormValues] = useState(initialForm)
   const [editingId, setEditingId] = useState(null)
+  const [paginaActual, setPaginaActual] = useState(1)
 
   useEffect(() => {
     let isMounted = true
@@ -123,6 +127,18 @@ function FacultadesPage() {
     }
   }
 
+  const totalPaginas = useMemo(
+    () => Math.max(1, Math.ceil(facultades.length / ITEMS_PER_PAGE)),
+    [facultades],
+  )
+
+  const paginaActualSegura = Math.min(paginaActual, totalPaginas)
+
+  const facultadesPaginadas = useMemo(() => {
+    const start = (paginaActualSegura - 1) * ITEMS_PER_PAGE
+    return facultades.slice(start, start + ITEMS_PER_PAGE)
+  }, [facultades, paginaActualSegura])
+
   return (
     <PageShell
       eyebrow="Catálogo"
@@ -172,7 +188,7 @@ function FacultadesPage() {
 
           {!isLoading && facultades.length > 0 ? (
             <ul className="faculty-list">
-              {facultades.map((facultad) => (
+              {facultadesPaginadas.map((facultad) => (
                 <li key={facultad.id_facultad} className="faculty-list__item">
                   <div>
                     <strong>{facultad.nombre}</strong>
@@ -190,6 +206,16 @@ function FacultadesPage() {
                 </li>
               ))}
             </ul>
+          ) : null}
+
+          {!isLoading && facultades.length > ITEMS_PER_PAGE ? (
+            <PaginationControls
+              currentPage={paginaActualSegura}
+              totalPages={totalPaginas}
+              onPageChange={setPaginaActual}
+              itemLabel="facultades"
+              totalItems={facultades.length}
+            />
           ) : null}
         </div>
       </section>

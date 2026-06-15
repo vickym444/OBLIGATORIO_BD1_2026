@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import PageShell from '../components/layout/PageShell'
+import PaginationControls from '../components/common/PaginationControls'
 import {
   actualizarEspacio,
   crearEspacio,
@@ -12,6 +13,8 @@ const initialForm = {
   descripcion: '',
 }
 
+const ITEMS_PER_PAGE = 10
+
 function EspaciosPage() {
   const [espacios, setEspacios] = useState([])
   const [isLoading, setIsLoading] = useState(true)
@@ -19,6 +22,7 @@ function EspaciosPage() {
   const [error, setError] = useState('')
   const [formValues, setFormValues] = useState(initialForm)
   const [editingId, setEditingId] = useState(null)
+  const [paginaActual, setPaginaActual] = useState(1)
 
   useEffect(() => {
     let isMounted = true
@@ -138,6 +142,18 @@ function EspaciosPage() {
     return espacio.descripcion?.trim() || 'Sin descripción'
   }
 
+  const totalPaginas = useMemo(
+    () => Math.max(1, Math.ceil(espacios.length / ITEMS_PER_PAGE)),
+    [espacios],
+  )
+
+  const paginaActualSegura = Math.min(paginaActual, totalPaginas)
+
+  const espaciosPaginados = useMemo(() => {
+    const start = (paginaActualSegura - 1) * ITEMS_PER_PAGE
+    return espacios.slice(start, start + ITEMS_PER_PAGE)
+  }, [espacios, paginaActualSegura])
+
   return (
     <PageShell
       eyebrow="Catálogo"
@@ -196,7 +212,7 @@ function EspaciosPage() {
 
           {!isLoading && espacios.length > 0 ? (
             <ul className="space-list">
-              {espacios.map((espacio) => (
+              {espaciosPaginados.map((espacio) => (
                 <li key={espacio.id_espacio} className="space-list__item">
                   <div>
                     <strong>{espacio.nombre}</strong>
@@ -215,6 +231,16 @@ function EspaciosPage() {
                 </li>
               ))}
             </ul>
+          ) : null}
+
+          {!isLoading && espacios.length > ITEMS_PER_PAGE ? (
+            <PaginationControls
+              currentPage={paginaActualSegura}
+              totalPages={totalPaginas}
+              onPageChange={setPaginaActual}
+              itemLabel="espacios"
+              totalItems={espacios.length}
+            />
           ) : null}
         </div>
       </section>

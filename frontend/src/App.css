@@ -330,6 +330,42 @@
   gap: 10px;
 }
 
+.pagination {
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(148, 163, 184, 0.28);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.pagination__summary {
+  margin: 0;
+  color: #52606d;
+  font-size: 14px;
+}
+
+.pagination__actions {
+  display: flex;
+  gap: 10px;
+}
+
+.pagination__actions button {
+  padding: 8px 12px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  border-radius: 10px;
+  background: #fff;
+  color: #102a43;
+  cursor: pointer;
+}
+
+.pagination__actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
 .practice-grid {
   display: grid;
   grid-template-columns: minmax(0, 380px) minmax(0, 1fr);

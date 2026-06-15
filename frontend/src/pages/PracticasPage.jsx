@@ -4,10 +4,10 @@ import PageShell from '../components/layout/PageShell'
 import CrudCard from '../components/crud/CrudCard'
 import CrudField from '../components/crud/CrudField'
 import PracticaGroup from '../components/practicas/PracticaGroup'
+import PaginationControls from '../components/common/PaginationControls'
 import { listarActividades } from '../services/actividadService'
 import {
   generarPracticas,
-  listarPracticasPorFecha,
   listarPracticasPorRango,
 } from '../services/practicaService'
 import { inscribirseAPractica, listarMisInscripciones } from '../services/inscripcionService'
@@ -15,6 +15,7 @@ import { inscribirseAPractica, listarMisInscripciones } from '../services/inscri
 const today = new Date()
 const initialDate = today.toISOString().slice(0, 10)
 const initialDateTo = initialDate
+const ITEMS_PER_PAGE = 10
 
 function formatHour(value) {
   if (value === null || value === undefined || value === '') {
@@ -58,6 +59,7 @@ function PracticasPage() {
   const [consultaActiva, setConsultaActiva] = useState('')
   const [ordenarPorcentaje, setOrdenarPorcentaje] = useState(false)
   const [soloCuposDisponibles, setSoloCuposDisponibles] = useState(false)
+  const [paginaActual, setPaginaActual] = useState(1)
 
   function getErrorMessage(requestError, fallbackMessage) {
     const message = requestError?.message || ''
@@ -105,7 +107,7 @@ function PracticasPage() {
     return () => {
       isMounted = false
     }
-  }, [isAuthLoading, isAuthenticated, hasRole])
+  }, [isAuthLoading, isAuthenticated, hasRole, isAdmin])
 
   function getLocalDateString() {
     const now = new Date()
@@ -134,6 +136,18 @@ function PracticasPage() {
       practicas: practicasGrupo,
     }))
   }, [practicas])
+
+  const totalPaginas = useMemo(
+    () => Math.max(1, Math.ceil(practicasAgrupadas.length / ITEMS_PER_PAGE)),
+    [practicasAgrupadas],
+  )
+
+  const paginaActualSegura = Math.min(paginaActual, totalPaginas)
+
+  const gruposPaginados = useMemo(() => {
+    const start = (paginaActualSegura - 1) * ITEMS_PER_PAGE
+    return practicasAgrupadas.slice(start, start + ITEMS_PER_PAGE)
+  }, [practicasAgrupadas, paginaActualSegura])
 
   async function cargarPracticasActuales({ preservarConsulta = true } = {}) {
     if (!fechaDesde || !fechaHasta) {
@@ -378,7 +392,7 @@ function PracticasPage() {
 
           {!isLoading && practicasAgrupadas.length > 0 ? (
             <div className="practice-groups">
-              {practicasAgrupadas.map((grupo) => (
+              {gruposPaginados.map((grupo) => (
                 <PracticaGroup
                   key={grupo.fecha}
                   fecha={grupo.fecha}
@@ -392,6 +406,16 @@ function PracticasPage() {
                 />
               ))}
             </div>
+          ) : null}
+
+          {!isLoading && practicasAgrupadas.length > ITEMS_PER_PAGE ? (
+            <PaginationControls
+              currentPage={paginaActualSegura}
+              totalPages={totalPaginas}
+              onPageChange={setPaginaActual}
+              itemLabel="grupos de prácticas"
+              totalItems={practicasAgrupadas.length}
+            />
           ) : null}
         </CrudCard>
       </section>

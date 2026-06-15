@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import PageShell from '../components/layout/PageShell'
 import CrudCard from '../components/crud/CrudCard'
 import CrudField from '../components/crud/CrudField'
+import PaginationControls from '../components/common/PaginationControls'
 import { listarCarreras } from '../services/carreraService'
 import {
   actualizarEstudiante,
@@ -18,6 +19,8 @@ const initialForm = {
   id_carrera: '',
 }
 
+const ITEMS_PER_PAGE = 10
+
 function EstudiantesPage() {
   const [estudiantes, setEstudiantes] = useState([])
   const [carreras, setCarreras] = useState([])
@@ -27,6 +30,8 @@ function EstudiantesPage() {
   const [formValues, setFormValues] = useState(initialForm)
   const [editingId, setEditingId] = useState(null)
   const [soloCon3Inasistencias, setSoloCon3Inasistencias] = useState(false)
+  const [textoBusqueda, setTextoBusqueda] = useState('')
+  const [paginaActual, setPaginaActual] = useState(1)
 
   useEffect(() => {
     let isMounted = true
@@ -184,6 +189,43 @@ function EstudiantesPage() {
     return carrera?.nombre ?? `Carrera ${idCarrera}`
   }
 
+  const estudiantesFiltrados = useMemo(() => {
+    const query = textoBusqueda.trim().toLowerCase()
+
+    if (!query) {
+      return estudiantes
+    }
+
+    return estudiantes.filter((estudiante) => {
+      const nombreCompleto = `${estudiante.nombre ?? ''} ${estudiante.apellido ?? ''}`.toLowerCase()
+      const documento = String(estudiante.documento ?? '').toLowerCase()
+      const email = String(estudiante.email ?? '').toLowerCase()
+      const carreraItem = carreras.find((item) => item.id_carrera === estudiante.id_carrera)
+      const carrera = (carreraItem?.nombre ?? `Carrera ${estudiante.id_carrera}`).toLowerCase()
+      const id = String(estudiante.id_estudiante ?? '')
+
+      return (
+        nombreCompleto.includes(query)
+        || documento.includes(query)
+        || email.includes(query)
+        || carrera.includes(query)
+        || id.includes(query)
+      )
+    })
+  }, [estudiantes, textoBusqueda, carreras])
+
+  const totalPaginas = useMemo(
+    () => Math.max(1, Math.ceil(estudiantesFiltrados.length / ITEMS_PER_PAGE)),
+    [estudiantesFiltrados],
+  )
+
+  const paginaActualSegura = Math.min(paginaActual, totalPaginas)
+
+  const estudiantesPaginados = useMemo(() => {
+    const start = (paginaActualSegura - 1) * ITEMS_PER_PAGE
+    return estudiantesFiltrados.slice(start, start + ITEMS_PER_PAGE)
+  }, [estudiantesFiltrados, paginaActualSegura])
+
   return (
     <PageShell
       eyebrow="Catálogo"
@@ -259,6 +301,15 @@ function EstudiantesPage() {
         </CrudCard>
 
         <CrudCard title="Listado de estudiantes">
+          <CrudField
+            label="Buscar estudiante"
+            name="buscar_estudiante"
+            value={textoBusqueda}
+            onChange={(event) => setTextoBusqueda(event.target.value)}
+            placeholder="Buscar por nombre, apellido, documento, email, carrera o ID"
+            className="crud-field--full"
+          />
+
           <label className="practice-sort-toggle">
             <input
               type="checkbox"
@@ -272,9 +323,13 @@ function EstudiantesPage() {
 
           {!isLoading && !error && estudiantes.length === 0 ? <p>No hay estudiantes cargados.</p> : null}
 
-          {!isLoading && estudiantes.length > 0 ? (
+          {!isLoading && !error && estudiantes.length > 0 && estudiantesFiltrados.length === 0 ? (
+            <p>No hay estudiantes que coincidan con la búsqueda.</p>
+          ) : null}
+
+          {!isLoading && estudiantesFiltrados.length > 0 ? (
             <ul className="crud-list">
-              {estudiantes.map((estudiante) => (
+              {estudiantesPaginados.map((estudiante) => (
                 <li key={estudiante.id_estudiante} className="crud-list__item">
                   <div>
                     <strong>
@@ -298,6 +353,16 @@ function EstudiantesPage() {
                 </li>
               ))}
             </ul>
+          ) : null}
+
+          {!isLoading && estudiantesFiltrados.length > ITEMS_PER_PAGE ? (
+            <PaginationControls
+              currentPage={paginaActualSegura}
+              totalPages={totalPaginas}
+              onPageChange={setPaginaActual}
+              itemLabel="estudiantes"
+              totalItems={estudiantesFiltrados.length}
+            />
           ) : null}
         </CrudCard>
       </section>
