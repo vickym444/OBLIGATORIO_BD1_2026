@@ -247,6 +247,7 @@ class InscripcionRepository:
                        p.fecha AS fecha_practica,
                        p.id_actividad,
                        a.nombre AS actividad_nombre,
+                                             d.nombre AS disciplina_nombre,
                        a.dia,
                        a.hora_inicio,
                        a.hora_fin,
@@ -254,6 +255,7 @@ class InscripcionRepository:
                 FROM inscripcion i
                 INNER JOIN practica p ON p.id_practica = i.id_practica
                 INNER JOIN actividad a ON a.id_actividad = p.id_actividad
+                                INNER JOIN disciplina d ON d.id_disciplina = a.id_disciplina
                 WHERE i.id_estudiante = %s
                   AND i.fecha_baja IS NULL
                 ORDER BY p.fecha, a.hora_inicio, i.id_inscripcion

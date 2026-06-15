@@ -1,5 +1,4 @@
 export const navigationItems = [
-  { label: 'Dashboard', path: '/dashboard' },
   { label: 'Facultades', path: '/facultades' },
   { label: 'Carreras', path: '/carreras' },
   { label: 'Estudiantes', path: '/estudiantes' },
@@ -9,7 +8,6 @@ export const navigationItems = [
   { label: 'Prácticas', path: '/practicas' },
   { label: 'Inscripciones', path: '/inscripciones' },
   { label: 'Asistencias', path: '/asistencias' },
-  { label: 'Reportes', path: '/reportes' },
   { label: 'Usuarios', path: '/usuarios' },
 ]
 
@@ -18,5 +16,5 @@ export const sectionLabels = navigationItems.reduce(
     labels[item.path] = item.label
     return labels
   },
-  { '/': 'Dashboard' },
+  { '/': 'Prácticas' },
 )

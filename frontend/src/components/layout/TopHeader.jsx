@@ -1,26 +1,21 @@
-import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
-import { sectionLabels } from './navigation'
+import logoUcu from '../../assets/Logo-Universidad-Catolica.svg'
 
 function TopHeader() {
-  const location = useLocation()
-  const navigate = useNavigate()
   const { user, logout } = useAuth()
-  const currentSection = sectionLabels[location.pathname] ?? 'Dashboard'
 
   function handleLogout() {
     logout()
-    navigate('/login')
   }
 
   return (
     <header className="app-header">
       <div className="app-header__meta">
-        <p className="app-header__eyebrow">Panel principal</p>
-        <h2 className="app-header__title">{currentSection}</h2>
-        <p className="app-header__subtitle">
-          Navegación base preparada para los módulos del sistema.
-        </p>
+        <img
+          src={logoUcu}
+          alt="Logo UCU"
+          className="app-header__logo"
+        />
       </div>
 
       <div className="app-header__controls">

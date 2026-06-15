@@ -119,6 +119,14 @@
   gap: 6px;
 }
 
+.app-header__logo {
+  height: 52px;
+  width: auto;
+  max-width: min(320px, 45vw);
+  object-fit: contain;
+  display: block;
+}
+
 .app-header__eyebrow {
   margin: 0;
   font-size: 12px;

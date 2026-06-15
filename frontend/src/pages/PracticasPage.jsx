@@ -14,14 +14,7 @@ import { inscribirseAPractica, listarMisInscripciones } from '../services/inscri
 
 const today = new Date()
 const initialDate = today.toISOString().slice(0, 10)
-const oneWeekAhead = new Date(today)
-oneWeekAhead.setDate(oneWeekAhead.getDate() + 7)
-const initialDateTo = oneWeekAhead.toISOString().slice(0, 10)
-
-const modeOptions = [
-  { value: 'fecha', label: 'Por fecha' },
-  { value: 'rango', label: 'Por rango' },
-]
+const initialDateTo = initialDate
 
 function PracticasPage() {
   const { user, hasRole, isAuthenticated, isLoading: isAuthLoading } = useAuth()
@@ -36,8 +29,6 @@ function PracticasPage() {
   const [inscribiendoId, setInscribiendoId] = useState(null)
   const [error, setError] = useState('')
   const [successMessage, setSuccessMessage] = useState('')
-  const [mode, setMode] = useState('fecha')
-  const [fecha, setFecha] = useState(initialDate)
   const [fechaDesde, setFechaDesde] = useState(initialDate)
   const [fechaHasta, setFechaHasta] = useState(initialDateTo)
   const [actividadId, setActividadId] = useState('')
@@ -113,35 +104,16 @@ function PracticasPage() {
     }))
   }, [practicas])
 
-  function handleModeChange(event) {
-    setMode(event.target.value)
-    setError('')
-  }
-
   async function cargarPracticasActuales({ preservarConsulta = true } = {}) {
-    if (mode === 'rango') {
-      if (!fechaDesde || !fechaHasta) {
-        setError('Debes seleccionar fecha desde y fecha hasta')
-        return
-      }
-
-      const response = await listarPracticasPorRango(fechaDesde, fechaHasta, ordenarPorcentaje, soloCuposDisponibles)
-      setPracticas(response?.data ?? [])
-      if (preservarConsulta) {
-        setConsultaActiva(`Rango ${fechaDesde} a ${fechaHasta}`)
-      }
+    if (!fechaDesde || !fechaHasta) {
+      setError('Debes seleccionar fecha desde y fecha hasta')
       return
     }
 
-    if (!fecha) {
-      setError('Debes seleccionar una fecha')
-      return
-    }
-
-    const response = await listarPracticasPorFecha(fecha, ordenarPorcentaje, soloCuposDisponibles)
+    const response = await listarPracticasPorRango(fechaDesde, fechaHasta, ordenarPorcentaje, soloCuposDisponibles)
     setPracticas(response?.data ?? [])
     if (preservarConsulta) {
-      setConsultaActiva(`Fecha ${fecha}`)
+      setConsultaActiva(`Rango ${fechaDesde} a ${fechaHasta}`)
     }
   }
 
@@ -172,13 +144,7 @@ function PracticasPage() {
       setIsSearching(true)
       setError('')
       await (async () => {
-        if (mode === 'rango') {
-          const response = await listarPracticasPorRango(fechaDesde, fechaHasta, checked, soloCuposDisponibles)
-          setPracticas(response?.data ?? [])
-          return
-        }
-
-        const response = await listarPracticasPorFecha(fecha, checked, soloCuposDisponibles)
+        const response = await listarPracticasPorRango(fechaDesde, fechaHasta, checked, soloCuposDisponibles)
         setPracticas(response?.data ?? [])
       })()
     } catch (requestError) {
@@ -200,13 +166,7 @@ function PracticasPage() {
       setIsSearching(true)
       setError('')
       await (async () => {
-        if (mode === 'rango') {
-          const response = await listarPracticasPorRango(fechaDesde, fechaHasta, ordenarPorcentaje, checked)
-          setPracticas(response?.data ?? [])
-          return
-        }
-
-        const response = await listarPracticasPorFecha(fecha, ordenarPorcentaje, checked)
+        const response = await listarPracticasPorRango(fechaDesde, fechaHasta, ordenarPorcentaje, checked)
         setPracticas(response?.data ?? [])
       })()
     } catch (requestError) {
@@ -231,10 +191,12 @@ function PracticasPage() {
       await generarPracticas(idActividad, fechaDesde || undefined, fechaHasta || undefined)
 
       if (consultaActiva) {
-        const response =
-          mode === 'rango'
-            ? await listarPracticasPorRango(fechaDesde, fechaHasta, ordenarPorcentaje, soloCuposDisponibles)
-            : await listarPracticasPorFecha(fecha, ordenarPorcentaje, soloCuposDisponibles)
+        const response = await listarPracticasPorRango(
+          fechaDesde,
+          fechaHasta,
+          ordenarPorcentaje,
+          soloCuposDisponibles,
+        )
 
         setPracticas(response?.data ?? [])
       }
@@ -300,45 +262,20 @@ function PracticasPage() {
           <form className="crud-form" onSubmit={consultarPracticas}>
             <div className="crud-form__grid">
               <CrudField
-                label="Modo de consulta"
-                name="mode"
-                value={mode}
-                onChange={handleModeChange}
-                as="select"
-                options={modeOptions}
-                className="crud-field--full"
+                label="Fecha desde"
+                name="fechaDesde"
+                value={fechaDesde}
+                onChange={(event) => setFechaDesde(event.target.value)}
+                type="date"
               />
 
-              {mode === 'fecha' ? (
-                <CrudField
-                  label="Fecha"
-                  name="fecha"
-                  value={fecha}
-                  onChange={(event) => setFecha(event.target.value)}
-                  type="date"
-                  className="crud-field--full"
-                />
-              ) : null}
-
-              {mode === 'rango' ? (
-                <>
-                  <CrudField
-                    label="Fecha desde"
-                    name="fechaDesde"
-                    value={fechaDesde}
-                    onChange={(event) => setFechaDesde(event.target.value)}
-                    type="date"
-                  />
-
-                  <CrudField
-                    label="Fecha hasta"
-                    name="fechaHasta"
-                    value={fechaHasta}
-                    onChange={(event) => setFechaHasta(event.target.value)}
-                    type="date"
-                  />
-                </>
-              ) : null}
+              <CrudField
+                label="Fecha hasta"
+                name="fechaHasta"
+                value={fechaHasta}
+                onChange={(event) => setFechaHasta(event.target.value)}
+                type="date"
+              />
 
               <CrudField
                 label="Actividad para generar"

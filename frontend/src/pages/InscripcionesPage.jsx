@@ -234,7 +234,7 @@ function InscripcionesPage() {
             </div>
 
             <div className="crud-form__actions">
-              <button type="submit">Aplicar rango</button>
+              <button type="submit">Aplicar filtros</button>
             </div>
           </form>
 
@@ -253,10 +253,10 @@ function InscripcionesPage() {
             <table className="admin-table">
               <thead>
                 <tr>
-                  <th>Nombre</th>
-                  <th>CI</th>
-                  <th>Facultad</th>
-                  <th>Carrera</th>
+                  {isAdmin ? <th>Nombre</th> : null}
+                  {isAdmin ? <th>CI</th> : null}
+                  {isAdmin ? <th>Facultad</th> : null}
+                  {isAdmin ? <th>Carrera</th> : null}
                   <th>Fecha</th>
                   <th>Hora</th>
                   <th>Actividad</th>
@@ -268,10 +268,10 @@ function InscripcionesPage() {
               <tbody>
                 {inscripciones.map((inscripcion) => (
                   <tr key={inscripcion.id_inscripcion}>
-                    <td>{`${inscripcion.estudiante_nombre ?? ''} ${inscripcion.estudiante_apellido ?? ''}`.trim()}</td>
-                    <td>{inscripcion.ci}</td>
-                    <td>{inscripcion.facultad_nombre}</td>
-                    <td>{inscripcion.carrera_nombre}</td>
+                    {isAdmin ? <td>{`${inscripcion.estudiante_nombre ?? ''} ${inscripcion.estudiante_apellido ?? ''}`.trim()}</td> : null}
+                    {isAdmin ? <td>{inscripcion.ci}</td> : null}
+                    {isAdmin ? <td>{inscripcion.facultad_nombre}</td> : null}
+                    {isAdmin ? <td>{inscripcion.carrera_nombre}</td> : null}
                     <td>{inscripcion.fecha_practica}</td>
                     <td>{`${formatTime(inscripcion.hora_inicio)} a ${formatTime(inscripcion.hora_fin)}`}</td>
                     <td>{inscripcion.actividad_nombre}</td>
